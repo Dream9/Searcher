@@ -9,10 +9,12 @@ import getopt
 from queue import Queue
 import requests
 import logging
+from urllib.parse import urljoin  #针对相对路径问题
 
 # 设置信息
 logging.basicConfig(level=logging.INFO, format='%(lineno)d-%(levelname)s:%(message)s')
 logging.getLogger().setLevel(logging.INFO)
+
 
 headers = (
     {'User-Agent': 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.6) Gecko/20091201 Firefox/3.5.6'},
@@ -39,8 +41,8 @@ tablename = "search_test"
 '''
 特别说明一下，url的第一位用于记录当前深度（未超过10）
 '''
-url = "1https://www.bookbao99.net/"
-
+hosturl = "1https://www.bookbao99.net/"
+url = "1https://www.bookbao99.net/book/201803/22/id_XNTk2NTE5.html"
 '''
 返回一个Mysql的连接
 '''
@@ -87,8 +89,8 @@ if __name__ == '__main__':
             logging.warning("Bad parameters,more information for -h")
             exit(_EXITFAIL)
     # pdb.set_trace()
-    print("debug")
-    ACK = input('Are you sure that %s words database will be built ?(y/n)' % (num_docs))
+
+    ACK = input('Are you sure that %d words database will be built ?(y/n)' % (num_docs))
     if ACK != 'y':
         sys.exit('Shutdown!')
     docname = tablename + "_doc"
@@ -98,12 +100,17 @@ if __name__ == '__main__':
     con = connectSql(username, password, host, database)
 
     with con.cursor() as cur:
-        cur.execute("drop table if exists %s" % (docname))
-        cur.execute("create table %s (id int primary key," /
-                    "link text not NULL" %(docname))
-        cur.execute("drop table if exists %s" % (termname))
-        cur.execute("create table %s (term varchar(30) primary key," /
-                    "list text not NULL" %(termname))
+        try:
+            cur.execute("drop table if exists %s" % (docname))
+            cur.execute("""create table %s (id int primary key,link text not NULL)""" %(docname))
+            cur.execute("drop table if exists %s" % (termname))
+            cur.execute("""create table %s (term varchar(30) primary key,list text not NULL)""" %(termname))
+        except Exception as e:
+            logging.critical(e)
+            cur.execute("rollback")
+            con.close()
+            logging.critical("Fatal Error!!")
+            exit(_EXITFAIL)
     con.commit()
     con.close()
 
@@ -113,19 +120,22 @@ if __name__ == '__main__':
     # 应该有一个合适的调度系统
 
     linkQueue.put(url)  # 初始起点
-    logging.info(time.strftime("start time: %H:%M:%S"), time.time())
+    logging.info("start :"+time.strftime("start time: %H:%M:%S",time.localtime()))
     linkCount = 0
-    # 爬取数据
+    '''
+    爬取数据
+    '''
     while not linkQueue.empty():
         if linkCount>=num_docs:
             break
+        print(linkCount,flush=True)
         url = linkQueue.get()
         if int(url[0])>depth or url[1:] in linkVisited:
             continue
         linkVisited.add(url[1:])
 
         try:
-            responce = requests.get(url[1:], headers[random.randint(0,len(headers))])
+            responce = requests.get(url[1:], headers[random.randint(0,len(headers)-1)])
         except Exception as e:
             logging.warning(e)
             continue
@@ -138,70 +148,89 @@ if __name__ == '__main__':
 
         contentSoup=BeautifulSoup(content,'lxml')
 
-        # 找到下一层的页面
+        '''
+        找到下一层的页面
+        '''
         # 实例   <a href="/BookList-c_8-t_0-o_0.html">都市</a>
-        hrefs=contentSoup.find_all(name='a')
+        hrefs=contentSoup.find_all(name='a',attrs={'href':True})  #必须存在href标签才行。。。
         for href in hrefs:
             if str(href["href"])[-4:]=="html":
                 tmplink=str(href["href"])
                 # 补全相对网址
-                if tmplink[0]=='/':
-                    tmplink=url+tmplink
+                # if tmplink[0]=='/':
+                #     tmplink=url[1:]+tmplink[1:]
+                tmplink=urljoin(url[1:],tmplink)
                 # 判断是否访问过
                 if tmplink not in linkVisited:
+                    # print(str(int(url[0])+1)+tmplink,flush=True)
                     linkQueue.put(str(int(url[0])+1)+tmplink)
 
-        '''解析内容
-        示例
+        '''
+        解析内容
+            示例
             <meta name="keywords" content="仙妖同途：仙君有个小妖精" />
             <meta name="description" content="仙妖同途：仙君有个小妖精全文阅读,仙妖同途：仙君有个小妖精TXT下载,仙妖同途：仙君有个小妖精全集,仙妖同途：仙君有个小妖精最新章节" />
 
         '''
 
-        keywords = contentSoup.find('meta', name="keywords").get_text("", strip=True)
-        descriptions = contentSoup.find('meta', name="description").get_text("", strip=True)
-        shortdescriptions=contentSoup('meta',property = "og:description").get_text("", strip=True)
+        keywords = contentSoup.find('meta', attrs={'name':"keywords","content":True})
+        descriptions = contentSoup.find('meta', attrs={'name':"description","content":True})
+        shortdescriptions=contentSoup.find('meta',attrs={'property':"og:description","content":True})
 
         termlist=[]
         if keywords is not None:
-            analysis=jieba.cut_for_search(keywords)
+            analysis=jieba.cut_for_search(keywords["content"].strip())
             termlist.append(list(analysis))
 
         if descriptions is not None:
-            analysis = jieba.cut_for_search(descriptions)
+            analysis = jieba.cut_for_search(descriptions["content"].strip())
             termlist.append(list(analysis))
 
         if shortdescriptions is not None:
-            analysis = jieba.cut_for_search(shortdescriptions)
+            analysis = jieba.cut_for_search(shortdescriptions["content"].strip())
             termlist.append(list(analysis))
         if len(termlist)==0:
             continue
-        linkCount=linkCount+1
+
 
         '''
         数据存储
         '''
         connect=connectSql(username,password,host,database)
         with connect.cursor() as cur:
+            # 注意这里的语法，所有类型的占位符都用%s
+            docInsertSQL="insert into " + docname + " values(%s,%s)"
+            termInsertSQL="insert into " + termname + " values(%s,%s)"
+            termSelectSQL ="select list from "+termname+" where term=%s"
+            termUpdateSQL="update "+termname+" set list=%s where term=%s"
             try:
                 '''
                 文档记录
                 '''
-                cur.execute("insert into "+docname+" values( %d ,%d)" ,(linkCount,url[1:]))
+                cur.execute( docInsertSQL,(linkCount,url[1:]))
                 '''
                 词典记录
                 '''
-                for term in termlist:
-                    cur.execute("select list from "+termname+" where term=%s" ,(term))
-                    ans=cur.fetchall()
-                    if(len(ans)==0):
-                        cur.execute("insert into "+termname+" values(%s,%s)" ,(term,str(linkCount)))
-                    else:
-                        new_list=ans[0][0]+" "+str(linkCount)
-                        cur.execute("update "+termname+" set list=%s where term=%s)" ,(new_list,term) )
+                for terms in termlist:
+                    manyitem=[]
+                    for term in terms:
+                        cur.execute(termSelectSQL,(term))
+                        ans=cur.fetchall()
+                        if(len(ans)==0):
+                            cur.execute(termInsertSQL,(term,str(linkCount)))
+                        else:
+                            # 待扩展：记录其频率
+                            new_list=ans[0][0]+" "+str(linkCount)
+                            cur.execute(termUpdateSQL,(new_list,term) )
             except Exception as e:
                 logging.critical(e)
                 cur.execute("rollback")
+                connect.close()
+                logging.critical("Fatal Error !!")
+                linkCount = linkCount + 1
+                continue
         connect.commit()
         connect.close()
-    logging.info("Finished !! "+time.strftime("%H:%M:%S",time.time()))
+        logging.warnint("%d finished" %(linkCount))
+        linkCount = linkCount + 1
+    logging.info("Finished !! "+time.strftime("%H:%M:%S",time.localtime()))
