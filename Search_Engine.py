@@ -40,7 +40,7 @@ def pickup(wodlist):
     pass
 
 '''
-
+PageRank
 '''
 def score(wordlist,cursor,N):
     TF={}
@@ -92,7 +92,6 @@ def init(uname, passwd, hos, db,doctable,termtable):
     docname=doctable
 '''
 在已经建立倒排表的情况下进行搜索
-   流程：计算词频，计算log(D/N),计算得分，显示结果
 '''
 def search_main():
     starttime=time.time()
