@@ -2,7 +2,7 @@
 #ifndef _BPLUSTREE_H
 #define _BPLUSTREE_H
 
-//µ÷ÊÔÓÃ
+//è°ƒè¯•ç”¨
 #define DEBUG_1
 #define ERROUT(x) printf("bad :  %s:%d--!!!"#x,__FUNCTION__,__LINE__);
 #define ENSURE(x) if(x);else {ERROUT(x);system("pause");exit(EXIT_FAILURE);}
@@ -25,15 +25,15 @@
     #include<iostream>
 #endif
 
-//°´²ã±éÀú²âÊÔÊı¾İÓÃ
+//æŒ‰å±‚éå†æµ‹è¯•æ•°æ®ç”¨
 #include<queue>
 
-//ÔÚÁíÒ»¸öÃüÃû¿Õ¼äÖĞ¶¨Òå
+//åœ¨å¦ä¸€ä¸ªå‘½åç©ºé—´ä¸­å®šä¹‰
 namespace BTree {
 
 	const ssize_t UNREADABLE = -1;
 
-	//Ñ¡Ôñ1stº¯Êı
+	//é€‰æ‹©1stå‡½æ•°
 	//
 	template < class _Pair>
 	struct _Select1st {
@@ -44,7 +44,7 @@ namespace BTree {
 			return __x.first;
 		}
 	};
-	//Ö¤Í¬º¯Êı
+	//è¯åŒå‡½æ•°
 	template<class _Ty>
 	struct _Identity {
 		_Ty& operator()(_Ty __x) const {
@@ -55,27 +55,27 @@ namespace BTree {
 		}
 	};
 
-	//ÊÍ·Å×ÊÔ´
+	//é‡Šæ”¾èµ„æº
 	template<class T>
 	inline void _Destroy(T* pointer) {
 		pointer->~T();
 	}
 
-	//ÀàĞÍµÄÑ¡Ôñ
+	//ç±»å‹çš„é€‰æ‹©
 	template<bool cond, class first, class second>
 	struct _IF {
 		typedef typename first type;
 	};
-	//¼ä½Óµ÷ÓÃÁíÒ»¸öÄ£°å£¬ÌØÀı»¯
+	//é—´æ¥è°ƒç”¨å¦ä¸€ä¸ªæ¨¡æ¿ï¼Œç‰¹ä¾‹åŒ–
 	template<class first, class second>
 	struct _IF<false, first, second> {
 		typedef typename second type;
 	};
 
 
-	/*pramÖĞÓ¦¸ÃÌá¹©ÏàÓ¦µÄ²ÎÊı*/
-	//ÔÚÕâ¸önodeÖĞÍ¬Ê±¶¨ÒåÁË¶à¸ö²»Í¬ÀàĞÍµÄ½Úµã£¬¸ù¾İpramÌá¹©µÄ²ÎÊıÌá¹©¶ÔÓ¦µÄ½á¹¹£¬ÓÉtreeÅĞ¶ÏĞèÒªÊ¹ÓÃÄÇ¸ö½Ó¿Ú
-	//Ö÷ÒªÊÇleafÓëinternalÒªÇø·Ö¿ªÀ´
+	/*pramä¸­åº”è¯¥æä¾›ç›¸åº”çš„å‚æ•°*/
+	//åœ¨è¿™ä¸ªnodeä¸­åŒæ—¶å®šä¹‰äº†å¤šä¸ªä¸åŒç±»å‹çš„èŠ‚ç‚¹ï¼Œæ ¹æ®pramæä¾›çš„å‚æ•°æä¾›å¯¹åº”çš„ç»“æ„ï¼Œç”±treeåˆ¤æ–­éœ€è¦ä½¿ç”¨é‚£ä¸ªæ¥å£
+	//ä¸»è¦æ˜¯leafä¸internalè¦åŒºåˆ†å¼€æ¥
 	template<typename pram>
 	struct node {
 		typedef typename pram::value_type value_type;
@@ -85,26 +85,26 @@ namespace BTree {
 		//typedef b_base_node* pointer;
 		enum {
 			_B = (pram::targetBytes - sizeof(b_base_node)) / sizeof(value_type),
-			Mtarget = _B < 3 ? 3 : _B,///////ÊÇÓÃ,·Ö¸ô£¬£¬£¬£¬£¬°¡°¡
-			M = Mtarget >> 1/////MtargetÊÇÖ¸Õë×î¶àÊıÁ¿£¬MÊÇ×îÉÙÊ¹ÓÃÁ¿
+			Mtarget = _B < 3 ? 3 : _B,///////æ˜¯ç”¨,åˆ†éš”ï¼Œï¼Œï¼Œï¼Œï¼Œå•Šå•Š
+			M = Mtarget >> 1/////Mtargetæ˜¯æŒ‡é’ˆæœ€å¤šæ•°é‡ï¼ŒMæ˜¯æœ€å°‘ä½¿ç”¨é‡
 		};
-		//¶¨Òå
+		//å®šä¹‰
 		struct b_base_node {
 			/*enum {
 				M = pram::targetBytes;
 			};*/
-			ssize_t num;//keyÒÑ¾­·ÖÅäÊıÄ¿
-			bool is_leaf;//ÊÇ·ñÎªÒ¶×Ó
-			pointer parent;//¸¸½Úµã
-			//¶îÍâ×·¼Ó£¬
+			ssize_t num;//keyå·²ç»åˆ†é…æ•°ç›®
+			bool is_leaf;//æ˜¯å¦ä¸ºå¶å­
+			pointer parent;//çˆ¶èŠ‚ç‚¹
+			//é¢å¤–è¿½åŠ ï¼Œç”¨äºè¿­ä»£å™¨æ“ä½œ
 			size_t position;
 			bool is_root() {
-				//ÌØÊâÉè¼Æ£¬¸ù½ÚµãµÄ¸¸½ÚµãÊÇÒ»¸öÒ¶×Ó½Úµã
+				//ç‰¹æ®Šè®¾è®¡ï¼Œæ ¹èŠ‚ç‚¹çš„çˆ¶èŠ‚ç‚¹æ˜¯ä¸€ä¸ªå¶å­èŠ‚ç‚¹
 				return parent->_node.is_leaf;
 			}
 		};
 
-		//bÊ÷ÌØ»¯node
+		//bæ ‘ç‰¹åŒ–node
 		struct b_leaf_node :b_base_node {
 
 			value_type key[Mtarget - 1];
@@ -114,9 +114,9 @@ namespace BTree {
 			pointer ptr[Mtarget];
 		};
 
-		//b+Ê÷ÌØ»¯node
+		//b+æ ‘ç‰¹åŒ–node
 		struct bplus_leaf_node :public b_leaf_node {
-			//Ôö¼ÓÁËÁ½¸öÇ°ºóÖ¸Õë
+			//å¢åŠ äº†ä¸¤ä¸ªå‰åæŒ‡é’ˆ
 			pointer prev;
 			pointer next;
 		};
@@ -124,9 +124,9 @@ namespace BTree {
 			pointer ptr[Mtarget];
 		};
 
-		//´´½¨½Ó¿Ú
-		//ÕâÖÖ×ª»»ºÍstatic_castÇø±ğÔÚÓÚÇ°Õß²»×ö·ÖÎöµÄ×ª»»£¬ºóÕß»áÔÚ×ÓÀà×ªµ½¸¸ÀàÊ±µ÷ÕûÖ¸Ïò
-		//·Ö¹¤£ºÓÉÍâ²¿·ÖÅä¿Õ¼ä£¬ÔÚ´Ë´¦³õÊ¼»¯£¬Ïàµ±ÓÚconstruct
+		//åˆ›å»ºæ¥å£
+		//è¿™ç§è½¬æ¢å’Œstatic_caståŒºåˆ«åœ¨äºå‰è€…ä¸åšåˆ†æçš„è½¬æ¢ï¼Œåè€…ä¼šåœ¨å­ç±»è½¬åˆ°çˆ¶ç±»æ—¶è°ƒæ•´æŒ‡å‘
+		//åˆ†å·¥ï¼šç”±å¤–éƒ¨åˆ†é…ç©ºé—´ï¼Œåœ¨æ­¤å¤„åˆå§‹åŒ–ï¼Œç›¸å½“äºconstruct
 		struct init_b_leaf_node {
 			pointer operator()(b_leaf_node* f, pointer parent = nullptr,size_t pos=-1) {
 				pointer n = reinterpret_cast<pointer>(f);/////////
@@ -179,7 +179,7 @@ namespace BTree {
 			}
 		};
 		//btree_node *n = reinterpret_cast<btree_node*>(f);
-		//¸ù¾İ²ÎÊı¾ö¶¨Ê¹ÓÃÄÇ¸ö°æ±¾×÷ÎªÒ»¸ö¿Éµ÷ÓÃ¶ÔÏó½øĞĞ³õÊ¼»¯
+		//æ ¹æ®å‚æ•°å†³å®šä½¿ç”¨é‚£ä¸ªç‰ˆæœ¬ä½œä¸ºä¸€ä¸ªå¯è°ƒç”¨å¯¹è±¡è¿›è¡Œåˆå§‹åŒ–
 		//
 		typedef typename _IF<pram::type, bplus_internal_node, b_internal_node>::type node_type;
 		typedef typename _IF<pram::type, init_bplus_internal_node, init_b_internal_node>::type init_internal;
@@ -194,90 +194,90 @@ namespace BTree {
 
 
 	public:
-		//Ö»ÓĞÕâ¸öÕ¼ÈİÁ¿
+		//åªæœ‰è¿™ä¸ªå å®¹é‡
 		node_type _node;
 	};
 
 
 
 
-	//Tree,,,¶¨ÒåÁË×ÜµÄ½Ó¿Ú
+	//Tree,,,å®šä¹‰äº†æ€»çš„æ¥å£
 	template<typename pram>
 	class Tree {
 	public:
-		//×¢ÒâtypedefµÄÀàĞÍÒ²ÊÇÊÕµ½publicÓ°ÏìµÄ
+		//æ³¨æ„typedefçš„ç±»å‹ä¹Ÿæ˜¯æ”¶åˆ°publicå½±å“çš„
 		/*
-		**µ±¸¸ÀàÖĞµÄtypedefÊÇÍ¨¹ıÄ£°åÍÆµ¹³öÀ´µÄ£¬×ÓÀàĞèÒªÖØĞÂ¶¨ÒåÒ»ÏÂ£¬·ñÔò´¦ÓÚ²»È·¶¨×´Ì¬
+		**å½“çˆ¶ç±»ä¸­çš„typedefæ˜¯é€šè¿‡æ¨¡æ¿æ¨å€’å‡ºæ¥çš„ï¼Œå­ç±»éœ€è¦é‡æ–°å®šä¹‰ä¸€ä¸‹ï¼Œå¦åˆ™å¤„äºä¸ç¡®å®šçŠ¶æ€
 		**/
 		typedef node<pram> node_type;
 		typedef node_type* node_pointer;
 		typedef typename node_type::init_leaf init_leaf;
 		typedef typename node_type::init_internal init_internal;
 		typedef int size_type;
-		typedef typename pram::compare compare;/////ÓÃÓÚkey_typeµÄ±È½Ï²Ù×÷
-		typedef typename node_type::leaf_node leaf_node;////////leaf_nodeÀàĞÍ£¬£¬ÓëÉÏÃæµÄÊÇ¶ÔÓ¦µÄmalloc,constructµÄ
-		typedef typename node_type::internal_node internal_node;///////internal_nodeÀàĞÍ
+		typedef typename pram::compare compare;/////ç”¨äºkey_typeçš„æ¯”è¾ƒæ“ä½œ
+		typedef typename node_type::leaf_node leaf_node;////////leaf_nodeç±»å‹ï¼Œï¼Œä¸ä¸Šé¢çš„æ˜¯å¯¹åº”çš„malloc,constructçš„
+		typedef typename node_type::internal_node internal_node;///////internal_nodeç±»å‹
 
-		//value_type £¬key_typeÔÚsetÖĞÒ»Ñù
-		//ÔÚmapÖĞ²»Í¬£¬Ç°ÕßÎªpair
-		//keyofvalueÔÚsetÖĞÎªidentity
-		//ÔÚmapÖĞÎªselect1st
+		//value_type ï¼Œkey_typeåœ¨setä¸­ä¸€æ ·
+		//åœ¨mapä¸­ä¸åŒï¼Œå‰è€…ä¸ºpair
+		//keyofvalueåœ¨setä¸­ä¸ºidentity
+		//åœ¨mapä¸­ä¸ºselect1st
 		typedef typename pram::value_type value_type;
 		typedef typename pram::key_type key_type;
 		typedef typename pram::keyofvalue keyofvalue;
 		//using Alloc = std::allocator<node_type>;
 		enum {
-			M = node_type::M///////×îÉÙÓ¦¸Ã·ÖÅäµÄpointer¸öÊı£¬×î¶àM<<1¸ö
+			M = node_type::M///////æœ€å°‘åº”è¯¥åˆ†é…çš„pointerä¸ªæ•°ï¼Œæœ€å¤šM<<1ä¸ª
 		};
 	protected:
-		//Õû¸öÊ÷µÄ½á¹¹½è¼øÁËSTLÖĞºìºÚÊ÷µÄ×éÖ¯£¬
-		//headerµÄ¸¸½ÚµãÎªÊ÷µÄroot£¬Í¬Ê±rootµÄ¸¸½ÚµãÒ²ÊÇheader
-		//header->key[0]Ö¸Ïòleftmost
-		//header->key[1]Ö¸Ïòrightmost
-		//Òò´Ëheader±¾ÉíÒ²×÷Îªend´æÔÚ
+		//æ•´ä¸ªæ ‘çš„ç»“æ„å€Ÿé‰´äº†STLä¸­çº¢é»‘æ ‘çš„ç»„ç»‡ï¼Œ
+		//headerçš„çˆ¶èŠ‚ç‚¹ä¸ºæ ‘çš„rootï¼ŒåŒæ—¶rootçš„çˆ¶èŠ‚ç‚¹ä¹Ÿæ˜¯header
+		//header->key[0]æŒ‡å‘leftmost
+		//header->key[1]æŒ‡å‘rightmost
+		//å› æ­¤headeræœ¬èº«ä¹Ÿä½œä¸ºendå­˜åœ¨
 		node_pointer header;
 
 		FILE* pfile;
 		size_type btree_node_num;
 
-		//INITÏà¹Ø
-		//´´ÔìÒ»¸ötree
+		//INITç›¸å…³
+		//åˆ›é€ ä¸€ä¸ªtree
 		virtual node_pointer btree_create() = 0;
-		//´´½¨Ò»¸önode
-		virtual node_pointer btree_node_new(ssize_t i) = 0;////i±íÊ¾·ÖÅäµÄ½ÚµãÀàĞÍ£¬£¬0Îªleaf,1Îªinternal
+		//åˆ›å»ºä¸€ä¸ªnode
+		virtual node_pointer btree_node_new(ssize_t i) = 0;////iè¡¨ç¤ºåˆ†é…çš„èŠ‚ç‚¹ç±»å‹ï¼Œï¼Œ0ä¸ºleaf,1ä¸ºinternal
 
-		//·ÖÁÑÒ»¸ö³¬ÏŞµÄ½Úµã
+		//åˆ†è£‚ä¸€ä¸ªè¶…é™çš„èŠ‚ç‚¹
 		virtual size_type btree_split_child(node_pointer parent, size_type pos, node_pointer child) = 0;
-		//²åÈëÒ»¸ö½Úµã,ÖµÎªtarget,¸¨Öú°æ±¾ÊÇÔÚµ±Ç°½ÚµãÎªÂúµÄÇé¿öÏÂ
+		//æ’å…¥ä¸€ä¸ªèŠ‚ç‚¹,å€¼ä¸ºtarget,è¾…åŠ©ç‰ˆæœ¬æ˜¯åœ¨å½“å‰èŠ‚ç‚¹ä¸ºæ»¡çš„æƒ…å†µä¸‹
 		virtual std::pair<node_pointer,bool> btree_insert(node_pointer root, value_type target) = 0;
 		//virtual void btree_insert_nofull(node_pointer root, value_type target) = 0;
-		//ºÏ²¢Á½¸öM-1ÔªËØµÄ½Úµã
+		//åˆå¹¶ä¸¤ä¸ªM-1å…ƒç´ çš„èŠ‚ç‚¹
 		virtual void btree_merge_child(node_pointer root, size_type pos, node_pointer y, node_pointer z) = 0;
-		//É¾³ıÒ»¸öÒ¶×Ó½Úµã£¬ÔÚroot½ÚµãÖÁÉÙÓĞM¸öµÄÇé¿öÏÂ
-		virtual node_pointer btree_delete(node_pointer root, value_type target) = 0;
+		//åˆ é™¤ä¸€ä¸ªå¶å­èŠ‚ç‚¹ï¼Œåœ¨rootèŠ‚ç‚¹è‡³å°‘æœ‰Mä¸ªçš„æƒ…å†µä¸‹
+		virtual void btree_delete(node_pointer root, value_type target) = 0;
 		virtual void btree_delete_nonone(node_pointer root, value_type target) = 0;
 
-		//IteratorÏà¹Ø
-		//Ñ°ÕÒÇ°¸°½Úµã
-		virtual value_type btree_search_predecessor(node_pointer root) = 0;
-		//Ñ°ÕÒºó¸½½Úµã
-		virtual value_type btree_search_successor(node_pointer root) = 0;
-		//Ç°½øºóÍËµÄ¸¨Öúº¯Êı£¬ÆäÊµÓ¦¸Ãµ¥¶À½¨Ò»¸öiteratorÀà
+		//Iteratorç›¸å…³
+		//å¯»æ‰¾å‰èµ´èŠ‚ç‚¹
+		//virtual value_type btree_search_predecessor(node_pointer root) = 0;
+		//å¯»æ‰¾åé™„èŠ‚ç‚¹
+		//virtual value_type btree_search_successor(node_pointer root) = 0;
+		//å‰è¿›åé€€çš„è¾…åŠ©å‡½æ•°ï¼Œå…¶å®åº”è¯¥å•ç‹¬å»ºä¸€ä¸ªiteratorç±»
 		//virtual void increament(node_pointer root) = 0;
 		//virtual void decreament(node_pointer root) = 0;
 
-		//Á½ÖÖĞı×ª
+		//ä¸¤ç§æ—‹è½¬
 		virtual void btree_shift_to_left(node_pointer root, size_type pos, node_pointer y, node_pointer z) = 0;
 		virtual void btree_shift_to_right(node_pointer root, size_type pos, node_pointer y, node_pointer z) = 0;
-		//±éÀú·½Ê½,LNR,¹ã¶È±éÀú
+		//éå†æ–¹å¼,LNR,å¹¿åº¦éå†
 		virtual void btree_inorder_traversal(node_pointer root) = 0;
 		virtual void btree_level_traversal(node_pointer root) = 0;
-		//±£´æ
+		//ä¿å­˜
 		virtual void Save(node_pointer root) = 0;
 	public:
 		void _destroy(node_pointer R) {
-			//ÊÍ·ÅR½Úµã¼°R½ÚµãÒÔÏÂµÄËùÓĞĞÅÏ¢
-			//µİ¹éÊµÏÖ
+			//é‡Šæ”¾RèŠ‚ç‚¹åŠRèŠ‚ç‚¹ä»¥ä¸‹çš„æ‰€æœ‰ä¿¡æ¯
+			//é€’å½’å®ç°
 			free(R);
 			R = nullptr;
 			return;
@@ -298,9 +298,9 @@ namespace BTree {
             if (R) {
 				ssize_t len = R->_node.num;
 				
-				//µ÷ÓÃÎö¹¹
+				//è°ƒç”¨ææ„
 				for (ssize_t i = 0; i < len; ++i) {
-					_Destroy(&R->_node.key[i]);//×¢ÒâÈ¡ÖÀ·ûºÅ
+					_Destroy(&R->_node.key[i]);//æ³¨æ„å–æ·ç¬¦å·
 				}
 				if (!R->_node.is_leaf) {
 					for (ssize_t i = 0; i <= len; ++i) {
@@ -313,10 +313,10 @@ namespace BTree {
 
 		}
 
-		//clearº¯Êı
+		//clearå‡½æ•°
 		void clear() {
-			//½è¼øÁËstlÖĞÊµÏÖË¼Â·
-			//clearÓÃÓÚµ÷ÓÃÎö¹¹£¬²¢deallocate
+			//å€Ÿé‰´äº†stlä¸­å®ç°æ€è·¯
+			//clearç”¨äºè°ƒç”¨ææ„ï¼Œå¹¶deallocate
 			if (btree_node_num != 0) {
 				__erase(root());
 				leftmost() = header;
@@ -328,10 +328,10 @@ namespace BTree {
 
 		Tree() {
 			btree_node_num = 0;
-			//ĞèÒªÖ÷¶¯µ÷ÓÃ³õÊ¼»¯tree
+			//éœ€è¦ä¸»åŠ¨è°ƒç”¨åˆå§‹åŒ–tree
 		}
 
-		//Îö¹¹
+		//ææ„
 		virtual ~Tree() {
 			if (header != nullptr) {
 				clear();
@@ -341,7 +341,7 @@ namespace BTree {
 			if (pfile != nullptr)
 				fclose(pfile);
 		}
-		////////¶ÔÍâÌá¹©Ò»ÏÂ½Ó¿Ú
+		////////å¯¹å¤–æä¾›ä¸€ä¸‹æ¥å£
 		void insert(value_type target) {
 			header = btree_insert(header, target);
 		}
@@ -354,7 +354,7 @@ namespace BTree {
 		void inorder_traversal() {
 			btree_inorder_traversal();
 		}
-		//Ò»ÏÂÈı¸öº¯ÊıÊÇÎªÁË·½±ãĞŞ¸Ä½á¹¹ĞÅÏ¢
+		//ä¸€ä¸‹ä¸‰ä¸ªå‡½æ•°æ˜¯ä¸ºäº†æ–¹ä¾¿ä¿®æ”¹ç»“æ„ä¿¡æ¯
 		node_pointer& leftmost() const {
 			NODEBUG(ENSURE(header));
 			return header->_node.ptr[0];
@@ -368,7 +368,7 @@ namespace BTree {
 			return header->_node.parent;
 		}
 
-		//³£¹æµÄroutine
+		//å¸¸è§„çš„routine
 		/*
 		virtual node_pointer begin() { return leftmost(); }
 		virtual const node_pointer begin() const { return leftmost(); }
@@ -380,7 +380,7 @@ namespace BTree {
 
 	template<class pram>
 	class btree_iter {
-		//ÒÑ¾­¼Ì³ĞÁËstdµÄiteratorÄ£°å£¬±ØÒª²ÎÊıÒÑ¾­ÉèÖÃ
+		//å·²ç»ç»§æ‰¿äº†stdçš„iteratoræ¨¡æ¿ï¼Œå¿…è¦å‚æ•°å·²ç»è®¾ç½®
 	public:
 		typedef node<pram> node_type;
 		typedef node_type* node_pointer;
@@ -395,14 +395,15 @@ namespace BTree {
 		node_pointer x;
 		ssize_t pos;
 	public:
+		const node_pointer NODE() const { return x; }///ä¸´æ—¶æä¾›
 		void increment_slow();
 		void decrement_slow();
-		//²ÉÓÃË«²ã½á¹¹Éè¼Æ++/--
-		//Ò¶×ÓÇÒÎ´³¬ÏŞÊ±²ÉÓÃincrement()£¬·ñÔòµ÷ÓÃincrement_slow()
+		//é‡‡ç”¨åŒå±‚ç»“æ„è®¾è®¡++/--
+		//å¶å­ä¸”æœªè¶…é™æ—¶é‡‡ç”¨increment()ï¼Œå¦åˆ™è°ƒç”¨increment_slow()
 
 
 		void increment() {
-			//µÈ´ıÊµÏÖ
+			//ç­‰å¾…å®ç°
 			NODEBUG(ENSURE(x != nullptr));
 			if (x == nullptr)
 				return;
@@ -412,7 +413,7 @@ namespace BTree {
 			increment_slow();
 		}
 
-		//×Ô¼õ²Ù×÷
+		//è‡ªå‡æ“ä½œ
 
 		void decrement() {
 			//
@@ -425,7 +426,7 @@ namespace BTree {
 			decrement_slow();
 		}
 
-		//¼¸¸ö×÷Îªµü´úÆ÷µÄ³£¹æÀı³ÌÊµÏÖ
+		//å‡ ä¸ªä½œä¸ºè¿­ä»£å™¨çš„å¸¸è§„ä¾‹ç¨‹å®ç°
 		reference operator*() {
 			return x->_node.key[pos];
 		}
@@ -463,35 +464,35 @@ namespace BTree {
 		}
 
 
-		//¹¹Ôì
+		//æ„é€ 
 		btree_iter(node_pointer n, ssize_t p) { x = n; pos = p; }
 		btree_iter() { x = nullptr; pos = -1; }
 		btree_iter(const self_type& y) { x = y.x; pos = y.pos; }
 		//btree_iter() { ; }
 	};
 
-	//Íâ²¿ÊµÏÖ
+	//å¤–éƒ¨å®ç°
 	template<class pram>
 	void btree_iter<pram>::increment_slow() {
 		if (x->_node.is_leaf) {
-			//Çé¿ö1£¬Ò¶×Ó³¬ÏŞ
+			//æƒ…å†µ1ï¼Œå¶å­è¶…é™
 			assert(pos >= x->_node.num);
 			while (pos == x->_node.num && !x->_node.is_root()) {
-				//»Øµ½¸¸½ÚµãÈ¥
+				//å›åˆ°çˆ¶èŠ‚ç‚¹å»
 				pos = x->_node.position;
 				x = x->_node.parent;
 			}
 
 			if (pos == x->_node.num) {
 				NODEBUG(printf("%d ", pos));
-				x = x->_node.parent;////¾ÍÊÇheader½Úµã
+				x = x->_node.parent;////å°±æ˜¯headerèŠ‚ç‚¹
 				pos = -1;
 			}
 		}
 		else {
-			//Çé¿ö2£¬Î»ÓÚÖĞ¼ä½ÚµãµÄ×ÔÔö²Ù×÷
+			//æƒ…å†µ2ï¼Œä½äºä¸­é—´èŠ‚ç‚¹çš„è‡ªå¢æ“ä½œ
 			assert(pos < x->_node.num());
-			//++ºó½øÈëÓÒ²àµÄ·ÖÖ§µÄ×î×ó²à
+			//++åè¿›å…¥å³ä¾§çš„åˆ†æ”¯çš„æœ€å·¦ä¾§
 			x = x->_node.ptr[pos + 1];
 			while (!x->_node.is_leaf) {
 				x = x->_node.ptr[0];
@@ -503,26 +504,26 @@ namespace BTree {
 
 	template<class pram>
 	void btree_iter<pram>::decrement_slow() {
-		//Í¬Àí
+		//åŒç†
 		if (x->_node.is_leaf) {
-			//Çé¿ö1£¬Ò¶×Ó³¬ÏŞ
+			//æƒ…å†µ1ï¼Œå¶å­è¶…é™
 			assert(pos < 0);
 			while (pos < 0 && !x->_node.is_root()) {
-				//»Øµ½¸¸½ÚµãÈ¥
+				//å›åˆ°çˆ¶èŠ‚ç‚¹å»
 				pos = x->_node.position - 1;
 				x = x->_node.parent;
 			}
 
 			if (pos < 0) {
 				NODEBUG(printf("%d ", pos));
-				x = x->_node.parent;///¶ÔÓ¦ÓÚÊ÷µÄheader
+				x = x->_node.parent;///å¯¹åº”äºæ ‘çš„header
 				pos = -1;
 			}
 		}
 		else {
-			//Çé¿ö2£¬Î»ÓÚÖĞ¼ä½ÚµãµÄ×ÔÔö²Ù×÷
+			//æƒ…å†µ2ï¼Œä½äºä¸­é—´èŠ‚ç‚¹çš„è‡ªå¢æ“ä½œ
 			assert(pos >= 0);
-			//++ºó½øÈëzuo²àµÄ·ÖÖ§µÄ×îyou²à
+			//++åè¿›å…¥zuoä¾§çš„åˆ†æ”¯çš„æœ€youä¾§
 			x = x->_node.ptr[pos];
 			while (!x->_node.is_leaf) {
 				x = x->_node.ptr[x->_node.num];
@@ -531,31 +532,29 @@ namespace BTree {
 		}
 	}
 
-	/*BtreeÀà*/
-	//¼Ì³Ğ×ÔTree
-	//×ÜÌå¼Ü¹¹ÊÇheaderÊÇÒ»¸öinternal£¬µ«ÊÇ±»±ê¼ÇÎªleaf,ËüÖ¸Ïò×î×óºÍ×îÓÒ£¬×ÔÉíÏàµ±ÓÚend,ËüºÍÊ÷µÄroot»¥Ïà×îÎª¸¸½Úµã£¬ÒÔ´ËÇø·Ö
+	/*Btreeç±»*/
+	//ç»§æ‰¿è‡ªTree
+	//æ€»ä½“æ¶æ„æ˜¯headeræ˜¯ä¸€ä¸ªinternalï¼Œä½†æ˜¯è¢«æ ‡è®°ä¸ºleaf,å®ƒæŒ‡å‘æœ€å·¦å’Œæœ€å³ï¼Œè‡ªèº«ç›¸å½“äºend,å®ƒå’Œæ ‘çš„rootäº’ç›¸æœ€ä¸ºçˆ¶èŠ‚ç‚¹ï¼Œä»¥æ­¤åŒºåˆ†
 	template<typename pram>
 	class Btree :public Tree<pram> {
-		//²»³ÉÊìµÄµü´úÆ÷
 	public:
-		typedef btree_iter<pram> iterator;   ////µü´úÆ÷
 		typedef Tree<pram> super_type;
 		typedef super_type::node_type node_type;
 		typedef super_type::node_pointer node_pointer;
 		typedef super_type::size_type size_type;
-		typedef super_type::init_leaf init_leaf;////////¿Éµ÷ÓÃ¶ÔÏó£¬ÓÃÓÚ³õÊ¼»¯leaf
-		typedef super_type::init_internal init_internal;//////ÓÃÓÚ³õÊ¼»¯internal
-		typedef super_type::compare compare;///±È½Ï²Ù×÷
-		typedef typename node_type::leaf_node leaf_node;////////leaf_nodeÀàĞÍ£¬£¬ÓëÉÏÃæµÄÊÇ¶ÔÓ¦µÄmalloc,constructµÄ
-		typedef typename node_type::internal_node internal_node;///////internal_nodeÀàĞÍ
-		//value_type £¬key_typeÔÚsetÖĞÒ»Ñù
-		//ÔÚmapÖĞ²»Í¬£¬Ç°ÕßÎªpair
-		//keyofvalueÔÚsetÖĞÎªidentity
-		//ÔÚmapÖĞÎªselect1st
+		typedef super_type::init_leaf init_leaf;////////å¯è°ƒç”¨å¯¹è±¡ï¼Œç”¨äºåˆå§‹åŒ–leaf
+		typedef super_type::init_internal init_internal;//////ç”¨äºåˆå§‹åŒ–internal
+		typedef super_type::compare compare;///æ¯”è¾ƒæ“ä½œ
+		typedef typename node_type::leaf_node leaf_node;////////leaf_nodeç±»å‹ï¼Œï¼Œä¸ä¸Šé¢çš„æ˜¯å¯¹åº”çš„malloc,constructçš„
+		typedef typename node_type::internal_node internal_node;///////internal_nodeç±»å‹
+		//value_type ï¼Œkey_typeåœ¨setä¸­ä¸€æ ·
+		//åœ¨mapä¸­ä¸åŒï¼Œå‰è€…ä¸ºpair
+		//keyofvalueåœ¨setä¸­ä¸ºidentity
+		//åœ¨mapä¸­ä¸ºselect1st
 		typedef typename pram::value_type value_type;
 		typedef typename pram::key_type key_type;
 		typedef typename pram::keyofvalue keyofvalue;
-		//ÏÂÃæµÄ¼¸¸ö±ØĞëÒªusingÖ®ºó²Å»á±»±àÒëÆ÷Ê¾Àı»¯£¡£¡£¡£¡£¡°¡°¡°¡
+		//ä¸‹é¢çš„å‡ ä¸ªå¿…é¡»è¦usingä¹‹åæ‰ä¼šè¢«ç¼–è¯‘å™¨ç¤ºä¾‹åŒ–ï¼ï¼ï¼ï¼ï¼å•Šå•Šå•Š
 		using super_type::root;
 		using super_type::header;
 		using super_type::leftmost;
@@ -565,56 +564,61 @@ namespace BTree {
 		using super_type::pfile;
 		using super_type::_destroy;
 		using super_type::clear;
+		
+		typedef btree_iter<pram> iterator;   ////è¿­ä»£å™¨
 	protected:
-		//INITÏà¹Ø£¬¹¹Ôìº¯Êıµ÷ÓÃÖ®
-		//³õÊ¼»¯tree
+		//INITç›¸å…³ï¼Œæ„é€ å‡½æ•°è°ƒç”¨ä¹‹
+		//åˆå§‹åŒ–tree
 		virtual node_pointer btree_create();
-		//´´½¨Ò»¸önode
-		virtual node_pointer btree_node_new(ssize_t i); //0Îªinternal,·ÇÁãÎªleaf
-		//¸¨Öúº¯Êı
+		//åˆ›å»ºä¸€ä¸ªnode
+		virtual node_pointer btree_node_new(ssize_t i); //0ä¸ºinternal,éé›¶ä¸ºleaf
+		//è¾…åŠ©å‡½æ•°
 		virtual node_pointer btree_node_new_leaf();//
 		virtual node_pointer btree_node_new_internal();
 
-		//·ÖÁÑÒ»¸ö³¬ÏŞµÄ½Úµã
+		//åˆ†è£‚ä¸€ä¸ªè¶…é™çš„èŠ‚ç‚¹
 		virtual size_type btree_split_child(node_pointer parent, size_type pos, node_pointer child);
-		//²åÈëÒ»¸ö½Úµã,ÖµÎªtarget,¸¨Öú°æ±¾ÊÇÔÚµ±Ç°½ÚµãÎªÂúµÄÇé¿öÏÂ
+		//virtual size_type btree_split_child(iterator iter, node_pointer child);
+		//æ’å…¥ä¸€ä¸ªèŠ‚ç‚¹,å€¼ä¸ºtarget,è¾…åŠ©ç‰ˆæœ¬æ˜¯åœ¨å½“å‰èŠ‚ç‚¹ä¸ºæ»¡çš„æƒ…å†µä¸‹
 		virtual std::pair<node_pointer,bool> btree_insert(node_pointer root, value_type target);
 		virtual std::pair<node_pointer,bool> btree_insert_nofull(node_pointer root, value_type target);
-		//ºÏ²¢Á½¸öM-1ÔªËØµÄ½Úµã
+		//åˆå¹¶ä¸¤ä¸ªM-1å…ƒç´ çš„èŠ‚ç‚¹
 		virtual void btree_merge_child(node_pointer root, size_type pos, node_pointer y, node_pointer z);
-		//É¾³ıÒ»¸öÒ¶×Ó½Úµã£¬ÔÚroot½ÚµãÖÁÉÙÓĞM¸öµÄÇé¿öÏÂ
-		virtual node_pointer btree_delete(node_pointer root, value_type target);
+		//åˆ é™¤ä¸€ä¸ªå¶å­èŠ‚ç‚¹ï¼Œåœ¨rootèŠ‚ç‚¹è‡³å°‘æœ‰Mä¸ªçš„æƒ…å†µä¸‹
+		virtual void btree_delete(node_pointer root, value_type target);
 		virtual void btree_delete_nonone(node_pointer root, value_type target);
 
-		//Iterator Ïà¹Ø
-		//Ñ°ÕÒÇ°¸°½Úµã
+		//Iterator ç›¸å…³
+		//å¯»æ‰¾å‰èµ´èŠ‚ç‚¹
 		virtual value_type btree_search_predecessor(node_pointer root);
-		//Ñ°ÕÒºó¸½½Úµã
+		//å¯»æ‰¾åé™„èŠ‚ç‚¹
 		virtual value_type btree_search_successor(node_pointer root);
-		//Ç°½øºóÍËµÄ¸¨Öúº¯Êı£¬ÆäÊµÓ¦¸Ãµ¥¶À½¨Ò»¸öiteratorÀà
+		//å‰è¿›åé€€çš„è¾…åŠ©å‡½æ•°ï¼Œå…¶å®åº”è¯¥å•ç‹¬å»ºä¸€ä¸ªiteratorç±»
 		//virtual void increament(node_pointer root);
 		//virtual void decreament(node_pointer root);
 
-		//Á½ÖÖĞı×ª
+		//ä¸¤ç§æ—‹è½¬
 		virtual void btree_shift_to_left(node_pointer root, size_type pos, node_pointer y, node_pointer z);
 		virtual void btree_shift_to_right(node_pointer root, size_type pos, node_pointer y, node_pointer z);
-		//±éÀú·½Ê½,LNR,¹ã¶È±éÀú
+		//éå†æ–¹å¼,LNR,å¹¿åº¦éå†
 		virtual void btree_inorder_traversal(node_pointer root);
 		virtual void btree_level_traversal(node_pointer root);
-		//±£´æ
+		//ä¿å­˜
 		virtual void Save(node_pointer root);
 		//int laji();
 
 	public:
 		std::pair<node_pointer, bool> insert_equal(value_type target);
-		//³£¹æµÄroutine
+		void erase(value_type);
+		void show(node_pointer node,ssize_t flag);
+		//å¸¸è§„çš„routine
 		iterator begin() { return iterator(leftmost(),0); }
 		const iterator begin() const { return iterator(leftmost(),0); }
-		iterator end() { return iterator(header,-1); }/////Ô¼¶¨Ò»ÏÂendµÄ½á¹¹
+		iterator end() { return iterator(header,-1); }/////çº¦å®šä¸€ä¸‹endçš„ç»“æ„
 		const iterator end() const { return iterator(header,-1); }
 
 
-		//²âÊÔÊ¹ÓÃ
+		//æµ‹è¯•ä½¿ç”¨
 #ifdef DEBUG_1
 		value_type ceshi() {
 			return header->_node.parent->_node.key[0];
@@ -633,17 +637,17 @@ namespace BTree {
 
 	
 
-	/*BtreeÊµÏÖ*/
+	/*Btreeå®ç°*/
 	template<typename pram>
 	typename Btree<pram>::node_pointer Btree<pram>::btree_create() {
 		//init_tree
 		header = btree_node_new(0);
-		//ÏÓÂé·³Ã»ÓĞ¶îÍâ¶¨ÒåÒ»¸öroot½Úµã£¬ÓÃÒ»¸öinternal½Úµã´úÌæ
+		//å«Œéº»çƒ¦æ²¡æœ‰é¢å¤–å®šä¹‰ä¸€ä¸ªrootèŠ‚ç‚¹ï¼Œç”¨ä¸€ä¸ªinternalèŠ‚ç‚¹ä»£æ›¿
 		ENSURE(header);
 		if (header == nullptr)
 			exit(EXIT_FAILURE);
-		//³õÊ¼»¯Êı¾İ½á¹¹
-		header->_node.is_leaf = true;///°ÑÒ»¸öÖĞ¼ä½Úµãµ±³ÉleafÓÃ
+		//åˆå§‹åŒ–æ•°æ®ç»“æ„
+		header->_node.is_leaf = true;///æŠŠä¸€ä¸ªä¸­é—´èŠ‚ç‚¹å½“æˆleafç”¨
 		//header->_node.num = 1;
 		root() = nullptr;
 		leftmost() = header;
@@ -655,13 +659,13 @@ namespace BTree {
 
 	template<typename pram>
 	typename Btree<pram>::node_pointer Btree<pram>::btree_node_new(ssize_t i) {
-		//×÷ÓÃ¾ÍÊÇ·Ö·¢£¬Ë«²ã½á¹¹
+		//ä½œç”¨å°±æ˜¯åˆ†å‘ï¼ŒåŒå±‚ç»“æ„
 		return i == 0 ? btree_node_new_internal() : btree_node_new_leaf();
 	}
 
 	template<typename pram>
 	typename Btree<pram>::node_pointer Btree<pram>::btree_node_new_leaf() {
-		//×÷ÓÃÊÇmallocÒ»¸önode½Úµã
+		//ä½œç”¨æ˜¯mallocä¸€ä¸ªnodeèŠ‚ç‚¹
 		leaf_node* newnode = reinterpret_cast<leaf_node*>(malloc(sizeof(leaf_node)));
 		NODEBUG(printf("New Leaf Node at %p\r\n", newnode));
 		NODEBUG(printf("len: %d\r\n", sizeof(leaf_node)));
@@ -669,10 +673,10 @@ namespace BTree {
 		if (newnode == nullptr)
 			return nullptr;
 
-		//ÎªÕâ¸önode³õÊ¼»¯Êı¾İ
-		//Ïàµ±ÓÚconstruct
-		//¿ÉÒÔµ¥¶À·ÖÀë³öÀ´
-		//Ä¬ÈÏÊÇ¸öÒ¶×Ó
+		//ä¸ºè¿™ä¸ªnodeåˆå§‹åŒ–æ•°æ®
+		//ç›¸å½“äºconstruct
+		//å¯ä»¥å•ç‹¬åˆ†ç¦»å‡ºæ¥
+		//é»˜è®¤æ˜¯ä¸ªå¶å­
 		/*
 		size_type len = M << 1;
 		for (size_type i = 0; i < len - 1; ++i) {
@@ -684,13 +688,13 @@ namespace BTree {
 		node->num = 0;
 		noed->is_leaf = true;
 		*/
-		//³õÊ¼»¯µ¥¶À·ÖÀëÊµÏÖ£º
+		//åˆå§‹åŒ–å•ç‹¬åˆ†ç¦»å®ç°ï¼š
 		return init_leaf()(newnode, nullptr);
 		//return node;
 	}
 	template<typename pram>
 	typename Btree<pram>::node_pointer Btree<pram>::btree_node_new_internal() {
-		//×÷ÓÃÊÇmallocÒ»¸önode½Úµã,²¢³õÊ¼»¯
+		//ä½œç”¨æ˜¯mallocä¸€ä¸ªnodeèŠ‚ç‚¹,å¹¶åˆå§‹åŒ–
 		internal_node* newnode = reinterpret_cast<internal_node*>(malloc(sizeof(internal_node)));
 		NODEBUG(printf("New Internal Node at %p\r\n", newnode));
 		NODEBUG(printf("len: %d\r\n", sizeof(internal_node)));
@@ -699,36 +703,37 @@ namespace BTree {
 			return nullptr;
 		return init_internal()(newnode, nullptr);
 	}
-	//ÒÔÉÏÓë³õÊ¼»¯Ïà¹Ø
+	//ä»¥ä¸Šä¸åˆå§‹åŒ–ç›¸å…³
 
-	//Ò»ÏÂÓë·ÖÁÑÏà¹Ø
+	//ä¸€ä¸‹ä¸åˆ†è£‚ç›¸å…³
 	template<typename pram>
 	typename Btree<pram>::size_type Btree<pram>::btree_split_child(Btree<pram>::node_pointer parent,
 		Btree<pram>::size_type pos, Btree<pram>::node_pointer child) {
-		//ÕâÀï²ÉÓÃÁËÒ»ÖÖÔ¤ÏÈ·ÖÁÑµÄ´¦Àí·ÅËÁ
-		//µ±Ò»¸ö½ÚµãµÄkey´ïµ½ÁË2*M-1¸öÊ±£¬±éÀúµ½´Ë£¬¾ÍÖ÷¶¯·ÖÀëÖ®
-		//·Ö³ÉÁËÈı²¿·Ö£¬M-1¸öµ½×ó£¬Ò»¸öÉÏÉıµ½parent,M-1¸öµ½ÓÒ²à
-		//ÓÉÓÚ²ÉÓÃÔ¤ÏÈ·ÖÀë£¬ËùÒÔ¼´±ãÉÏÉıÒ»¸öµ½parentÖĞ£¬ÈÔÈ»²»»á³¬ÏŞ£¬²»ĞèÒªµİ¹ébalance
-		ssize_t nodetype = child->_node.is_leaf;//ĞÂ·ÖÁÑµÄ½ÚµãÓ¦¸ÃÓëÔ­À´ÊÇÍ¬ÖÖÀàĞÍ
+		//è¿™é‡Œé‡‡ç”¨äº†ä¸€ç§é¢„å…ˆåˆ†è£‚çš„å¤„ç†æ”¾è‚†
+		//å½“ä¸€ä¸ªèŠ‚ç‚¹çš„keyè¾¾åˆ°äº†2*M-1ä¸ªæ—¶ï¼Œéå†åˆ°æ­¤ï¼Œå°±ä¸»åŠ¨åˆ†ç¦»ä¹‹
+		//åˆ†æˆäº†ä¸‰éƒ¨åˆ†ï¼ŒM-1ä¸ªåˆ°å·¦ï¼Œä¸€ä¸ªä¸Šå‡åˆ°parent,M-1ä¸ªåˆ°å³ä¾§
+		//ç”±äºé‡‡ç”¨é¢„å…ˆåˆ†ç¦»ï¼Œæ‰€ä»¥å³ä¾¿ä¸Šå‡ä¸€ä¸ªåˆ°parentä¸­ï¼Œä»ç„¶ä¸ä¼šè¶…é™ï¼Œä¸éœ€è¦é€’å½’balance
+		ssize_t nodetype = child->_node.is_leaf;//æ–°åˆ†è£‚çš„èŠ‚ç‚¹åº”è¯¥ä¸åŸæ¥æ˜¯åŒç§ç±»å‹
 		node_pointer new_child = btree_node_new(nodetype);
 		ENSURE(new_child);
-		new_child->_node.num = M - 1;///µ½ÓÒ²àÈ¥
-		//Ò²¿ÉÒÔÑ­»·¸´ÖÆ£¬Ç°ÌáÊ±value_type¶¨ÒåÁË¿½±´¹¹Ôìº¯Êı
-		//copyµÄÂß¼­ÓëÖ®²î²»¶à£¬µ«ÊÇ¶ÔÓÚplain_type¸ü¿ìÒ»Ğ©
+		new_child->_node.num = M - 1;///åˆ°å³ä¾§å»
+		//ä¹Ÿå¯ä»¥å¾ªç¯å¤åˆ¶ï¼Œå‰ææ—¶value_typeå®šä¹‰äº†æ‹·è´æ„é€ å‡½æ•°
+		//copyçš„é€»è¾‘ä¸ä¹‹å·®ä¸å¤šï¼Œä½†æ˜¯å¯¹äºplain_typeæ›´å¿«ä¸€äº›
 		std::copy(child->_node.key + M, child->_node.key + (M << 1) - 1, new_child->_node.key);
 		if (nodetype == 0) {
-			//ÖĞ¼ä½Úµã»¹Òª¿½±´ptr
-			//×¢ÒâÖ¸Õë¶àÒ»¸ö
+			//ä¸­é—´èŠ‚ç‚¹è¿˜è¦æ‹·è´ptr
+			//æ³¨æ„æŒ‡é’ˆå¤šä¸€ä¸ª
 			std::copy(child->_node.ptr, child->_node.ptr + (M << 1), new_child->_node.ptr);
 		}
-		//´¦ÀíÊ£ÏÂµÄ(Ç°°ë¶Î)Ò»°ë£¬Ö»ĞèÒª¸ü¸ÄÒ»ÏÂÒÑ·ÖÅä¿Õ¼ä¾Í¿ÉÒÔÁË
+		//å¤„ç†å‰©ä¸‹çš„(å‰åŠæ®µ)ä¸€åŠï¼Œåªéœ€è¦æ›´æ”¹ä¸€ä¸‹å·²åˆ†é…ç©ºé—´å°±å¯ä»¥äº†
 		child->_node.num = M - 1;
-		//¶Ô¸¸½ÚµãµÄ²åÈëÒ»¸ökeyºÍptr
-		ssize_t Pnum = parent->_node.num;//¸¸½ÚµãÒÑÊ¹ÓÃÇé¿ö
+		//å¯¹çˆ¶èŠ‚ç‚¹çš„æ’å…¥ä¸€ä¸ªkeyå’Œptr
+		ssize_t Pnum = parent->_node.num;//çˆ¶èŠ‚ç‚¹å·²ä½¿ç”¨æƒ…å†µ
 		//std::copy_backward(parent->_node.ptr + pos + 1, parent->_node.ptr + Pnum, parent->_node.ptr + Pnum + 1);//ennmmmm
 		std::copy_backward(parent->_node.ptr + pos + 1, parent->_node.ptr + Pnum+1, parent->_node.ptr + Pnum + 2);
-		parent->_node.ptr[pos + 1] = new_child;//Ö¸ÏòÓÒ½Úµã
-		//NODEBUG(print("Ç°£º%d",parent->_node.key[pos]));
+		parent->_node.ptr[pos + 1] = new_child;//æŒ‡å‘å³èŠ‚ç‚¹
+		new_child->_node.position = pos + 1;
+		//NODEBUG(print("å‰ï¼š%d",parent->_node.key[pos]));
 		std::copy_backward(parent->_node.key + pos, parent->_node.key + Pnum, parent->_node.key + Pnum + 1);
 		parent->_node.key[pos] = child->_node.key[M - 1];
 		parent->_node.num += 1;
@@ -736,16 +741,16 @@ namespace BTree {
 		return 0;
 	}
 
-	//Ó¦¸ÃÔÙ¶îÍâÊµÏÖÒ»¸öinsert_unique,,ÏÂÃæµÄ°æ±¾ÊÇinsert_equal
+	//åº”è¯¥å†é¢å¤–å®ç°ä¸€ä¸ªinsert_unique,,ä¸‹é¢çš„ç‰ˆæœ¬æ˜¯insert_equal
 	template<typename pram>
 	std::pair<typename Btree<pram>::node_pointer,bool> Btree<pram>::btree_insert_nofull(Btree::node_pointer node, Btree::value_type target) {
-		//ÔÚÎ´ÂúµÄÇé¿öÏÂ£¬num<2*M-1
-		//±£Ö¤Ìõ¼ş¾ÍÊÇÔÚÑ°ÕÒ¹ı³ÌÖĞ£¬×Ô¶¯balance
-		//Õâ¸öinsert²Ù×÷ÊÇÔÚÒÑnodeÎª¸ùÊ±Ñ°ÕÒ²åÈëµã£¬È»ºóinsert
+		//åœ¨æœªæ»¡çš„æƒ…å†µä¸‹ï¼Œnum<2*M-1
+		//ä¿è¯æ¡ä»¶å°±æ˜¯åœ¨å¯»æ‰¾è¿‡ç¨‹ä¸­ï¼Œè‡ªåŠ¨balance
+		//è¿™ä¸ªinsertæ“ä½œæ˜¯åœ¨å·²nodeä¸ºæ ¹æ—¶å¯»æ‰¾æ’å…¥ç‚¹ï¼Œç„¶åinsert
 		if (node->_node.is_leaf == 1) {
-			//ÒÑ¾­µ½´ïÒ¶×Ó
-			//´ÓkeyÖĞÑ°ÕÒ£¬ÓÉÓÚBtree×ÔÈ»ÓĞĞò£¬ËùÒÔÕâÀï¿ÉÒÔ¶ş·ÖËÑË÷
-			//µ«ÊÇÍ¨¹ı·´Ïò±éÀú£¬¿ÉÒÔË³±ãcopy_backward,,,
+			//å·²ç»åˆ°è¾¾å¶å­
+			//ä»keyä¸­å¯»æ‰¾ï¼Œç”±äºBtreeè‡ªç„¶æœ‰åºï¼Œæ‰€ä»¥è¿™é‡Œå¯ä»¥äºŒåˆ†æœç´¢
+			//ä½†æ˜¯é€šè¿‡åå‘éå†ï¼Œå¯ä»¥é¡ºä¾¿copy_backward,,,
 			ssize_t pos = node->_node.num;
 			while (pos >= 1 && compare()(target, node->_node.key[pos - 1])) {
 				node->_node.key[pos] = node->_node.key[pos - 1];
@@ -755,48 +760,60 @@ namespace BTree {
 			node->_node.num += 1;
 			btree_node_num += 1;
 
-			//Ó¦¸Ã×Ô¼º¶¨ÒåÒ»¸öiterator
-			//·ñÔò·µ»ØµÄ¶¼ÊÇÒ»¸önode,¶øÃ»ÓĞ¾«È·µ½key
+			//æ›´æ–°leftmost,rightmost
+			//
+			/*
+			if (compare()(target, leftmost()->_node.key[0])) {
+				leftmost() = node;
+			}
+			if (compare()(rightmost()->_node.key[rightmost()->_node.num - 1])) {
+				rightmost() = node;
+			}
+			*/
+
+			//åº”è¯¥è‡ªå·±å®šä¹‰ä¸€ä¸ªiterator
+			//å¦åˆ™è¿”å›çš„éƒ½æ˜¯ä¸€ä¸ªnode,è€Œæ²¡æœ‰ç²¾ç¡®åˆ°key
 			return std::make_pair(node, true);
 		}
 		else {
-			//ĞèÒªÏòÏÂÑ°ÕÒ
+			//éœ€è¦å‘ä¸‹å¯»æ‰¾
 			ssize_t pos = node->_node.num;
 			while (pos >= 1 && compare()(target, node->_node.key[pos - 1])) {
 				--pos;
 			}
 			ssize_t length = (M << 1) - 1;
 			if (length == node->_node.ptr[pos]->_node.num) {
-				//ĞèÒª·ÖÁÑ
-				//´Ë´¦
+				//éœ€è¦åˆ†è£‚
+				//æ­¤å¤„
 				ENSURE(0==btree_split_child(node, pos, node->_node.ptr[pos]));//enmm
 				if (compare()(target, node->_node.key[pos]))
-					;//ĞÂÉÏÉıÀ´Ò»¸ö½Úµã
+					;//æ–°ä¸Šå‡æ¥ä¸€ä¸ªèŠ‚ç‚¹
 				else
 					++pos;
 			}
-			return btree_insert_nofull(node->_node.ptr[pos], target);//µİ¹é
+			return btree_insert_nofull(node->_node.ptr[pos], target);//é€’å½’
 		}
 	}
 
-	//ÓĞÎÊÌâ£¬´ı¸Ä½ø
+	//æœ‰é—®é¢˜ï¼Œå¾…æ”¹è¿›
 	template<typename pram>
 	std::pair<typename Btree<pram>::node_pointer,bool> Btree<pram>::btree_insert(Btree::node_pointer node, Btree::value_type target) {
-		//×öÒ»¸ö¼ì²é£¬È»ºó×ªµ÷bree_insert_nofullº¯Êı
-		//Í¬Ê±ÒªÎ¬»¤headerµÄÏà¹ØÊôĞÔ
-		/*ÓÖÉÏÒ»²ã±£Ö¤
+		//åšä¸€ä¸ªæ£€æŸ¥ï¼Œç„¶åè½¬è°ƒbree_insert_nofullå‡½æ•°
+		//åŒæ—¶è¦ç»´æŠ¤headerçš„ç›¸å…³å±æ€§
+		/*åˆä¸Šä¸€å±‚ä¿è¯
 		if (node == nullptr) {
 			return std::make_pair(node,false);
 		}
 		*/
 		ssize_t length = (M << 1) - 1;
 		if (length == node->_node.num) {
-			//Ôö¼ÓÊ÷¸ß£¬ĞèÒª·ÖÁÑ£¬²úÉúÒ»¸öparent,±ØÈ»ÊÇinternal 
-			node_pointer newnode = btree_node_new(0);/////¾­¹ıÕâÒ»²½Ö®ºó£¬root²Å²»ÊÇÒ¶×Ó
-			//newnode->_node.num = 1;   //ÕâÊÇ¶àÓàµÄ
+			//å¢åŠ æ ‘é«˜ï¼Œéœ€è¦åˆ†è£‚ï¼Œäº§ç”Ÿä¸€ä¸ªparent,å¿…ç„¶æ˜¯internal 
+			node_pointer newnode = btree_node_new(0);/////ç»è¿‡è¿™ä¸€æ­¥ä¹‹åï¼Œrootæ‰ä¸æ˜¯å¶å­
+			//newnode->_node.num = 1;   //è¿™æ˜¯å¤šä½™çš„
 			header->_node.parent = newnode;
 			newnode->_node.ptr[0] = node;
-			btree_split_child(newnode, 0, node);//ºÏ²¢Ê±¸üĞÂnum
+			node->_node.position = 0;
+			btree_split_child(newnode, 0, node);//åˆå¹¶æ—¶æ›´æ–°num
 			return btree_insert_nofull(newnode, target);
 		}
 		else {
@@ -804,20 +821,20 @@ namespace BTree {
 			//return std::make_pair(node,true);
 		}
 	}
-	//insertµÄ¸Ä½ø
+	//insertçš„æ”¹è¿›
 	template<typename pram>
 	std::pair<typename Btree<pram>::node_pointer, bool> Btree<pram>::insert_equal(Btree::value_type target) {
 		//node_pointer y = header;
 		node_pointer x = root();
 		if (x == nullptr) {
-			x = btree_node_new(1);//////ĞŞ¸ÄµÚÒ»¸örootÓ¦¸ÃÊÇÒ»¸öleaf
+			x = btree_node_new(1);//////ç¬¬ä¸€ä¸ªrootåº”è¯¥æ˜¯ä¸€ä¸ªleaf
 			x->_node.parent = header;
 			header->_node.num = 1;
 			x->_node.num = 1;
 			x->_node.key[0] = target;
 			x->_node.ptr[0] = nullptr;
 			x->_node.ptr[1] = nullptr;
-			btree_node_num += 1;
+			btree_node_num =1;
 			leftmost() = x;
 			rightmost() = x;
 			root() = x;
@@ -828,156 +845,170 @@ namespace BTree {
 
 	}
 
-	//ºÏ²¢²Ù×÷
+	//åˆå¹¶æ“ä½œ
 	template<typename pram>
 	void Btree<pram>::btree_merge_child(Btree::node_pointer node, Btree::size_type pos, Btree::node_pointer left, Btree::node_pointer right) {
-		//ÕıºÃÊÇsplit_childµÄ·´Ïò²Ù×÷
-		//ÓÃÓÚÔÚdeleteÊ±½øĞĞ×Ô¶¯balance
-		//½«noedµÄkey[pos],ºÍrightºÏ²¢µ½leftÖĞÈ¥
+		//æ­£å¥½æ˜¯split_childçš„åå‘æ“ä½œ
+		//ç”¨äºåœ¨deleteæ—¶è¿›è¡Œè‡ªåŠ¨balance
+		//å°†noedçš„key[pos],å’Œrightåˆå¹¶åˆ°leftä¸­å»
 		ssize_t length = (M << 1) - 1;
-		//ĞŞ¸ÄÈİÁ¿
+		//ä¿®æ”¹å®¹é‡
 		left->_node.num = length;
-		//¿½±´key
+		//æ‹·è´key
 		left->_node.key[M - 1] = node->_node.key[pos];
 		std::copy(right->_node.key, right->_node.key + M - 1, left->_node.key + M);
-		//ĞŞ¸Äptr
+		//ä¿®æ”¹ptr
 		if (right->_node.is_leaf == 0) {
 			std::copy(right->_node.ptr, right->_node.ptr + M, left->_node.ptr + M);
 		}
-		//¸ù½Úµãµ÷Õû
+		//æ ¹èŠ‚ç‚¹è°ƒæ•´
 		length = node->_node.num;
 		std::copy(node->_node.ptr + pos + 2, node->_node.ptr + length + 1, node->_node.ptr + pos + 1);
 		std::copy(node->_node.key + pos + 1, node->_node.key + length, node->_node.key + pos);
 		node->_node.num -= 1;
-		//ÊÍ·Å¿Õ¼ä
+		//é‡Šæ”¾ç©ºé—´
 		_destroy(right);
 	}
 
-	//delete½Úµã
+	//deleteèŠ‚ç‚¹
 	template<typename pram>
-	typename Btree<pram>::node_pointer Btree<pram>::btree_delete(Btree::node_pointer node, Btree::value_type target) {
-		//ºÍºÏ²¢Ò»ÑùµÄµÀÀí
-		//ÅÅ³ıÒ»Ğ©ÌØÊâÇé¿ö£¬È»ºóµ÷ÓÃ½Ó¿Ú
-		//¾ÍÊÇÖµµÃÊÇÉæÊÂµÄÈı¸ö½Úµã¶¼ÊÇÁÙ½çÖµ£¬M-1£¬1£¬M-1£¬´ËÊ±ÎŞÂÛÉ¾³ıÄÄÒ»¸ö±ØÈ»Òª½µµÍÊ÷µÄ¸ß¶È£¬ÊÍ·Åµô¸ù
-		if (nullptr == node)
+	void Btree<pram>::btree_delete(Btree::node_pointer node, Btree::value_type target) {
+		//å’Œåˆå¹¶ä¸€æ ·çš„é“ç†
+		//æ’é™¤ä¸€äº›ç‰¹æ®Šæƒ…å†µï¼Œç„¶åè°ƒç”¨æ¥å£
+		//å°±æ˜¯å€¼å¾—æ˜¯æ¶‰äº‹çš„ä¸‰ä¸ªèŠ‚ç‚¹éƒ½æ˜¯ä¸´ç•Œå€¼ï¼ŒM-1ï¼Œ1ï¼ŒM-1ï¼Œæ­¤æ—¶æ— è®ºåˆ é™¤å“ªä¸€ä¸ªå¿…ç„¶è¦é™ä½æ ‘çš„é«˜åº¦ï¼Œé‡Šæ”¾æ‰æ ¹
+		/*if (nullptr == node)
 			return nullptr;
+			*/
 		if (node->_node.num == 1) {
 			node_pointer left = node->_node.ptr[0];
 			node_pointer right = node->_node.ptr[1];
 			if (left && right && left->_node.num == M - 1 && right->_node.num == M - 1) {
-				//È«²¿ºÏ²¢Ö®ºóÎª2*M-1¸ö£¬ÔÙÉ¾³ıÒ»¸ö¼¸µã£¬²»´æÔÚ»ØËİµÄ¿¼ÂÇÁË
+				//å…¨éƒ¨åˆå¹¶ä¹‹åä¸º2*M-1ä¸ªï¼Œå†åˆ é™¤ä¸€ä¸ªå‡ ç‚¹ï¼Œä¸å­˜åœ¨å›æº¯çš„è€ƒè™‘äº†
 				btree_merge_child(node, 0, left, right);
-				_destroy(node);//ÉÏÒ»²½Ò»¶¨°ÑnodeµÄnumµ÷ÕûÎª0ÁË
+				_destroy(node);//ä¸Šä¸€æ­¥ä¸€å®šæŠŠnodeçš„numè°ƒæ•´ä¸º0äº†
 				btree_delete_nonone(left, target);
-				return left;
+				return ;
 			}
 		}
 		btree_delete_nonone(node, target);
-		return node;
+		return ;
 	}
 
 	template<typename pram>
 	void Btree<pram>::btree_delete_nonone(Btree::node_pointer node, Btree::value_type target) {
-		//ÔÙ±£Ö¤node½Úµã²»»á³ö´íµÄÇé¿öÏÂ
-		//ÖÁ¶àµ÷ÕûÒ»ÏÂnode½Úµã£¬ÇÒ²»»áÍêÈ«Õû¸öÉ¾³ınode½Úµã
+		//å†ä¿è¯nodeèŠ‚ç‚¹ä¸ä¼šå‡ºé”™çš„æƒ…å†µä¸‹
+		//è‡³å¤šè°ƒæ•´ä¸€ä¸‹nodeèŠ‚ç‚¹ï¼Œä¸”ä¸ä¼šå®Œå…¨æ•´ä¸ªåˆ é™¤nodeèŠ‚ç‚¹
 		if (1 == node->_node.is_leaf) {
-			//Õë¶ÔÒ¶×Ó½Úµã
-			//ºÍinsert_equal²»Í¬£¬É¾³ıµÄÔªËØ²»Ò»¶¨´æÔÚ
-			//±ØÈ»Òª±éÀú£¬¶ş·Ö£¿ÏßĞÔ£¿
-			//¿ÉÒÔ°Ñ²ßÂÔÒ²·â×°Ò»ÏÂ
+			//é’ˆå¯¹å¶å­èŠ‚ç‚¹
+			//å’Œinsert_equalä¸åŒï¼Œåˆ é™¤çš„å…ƒç´ ä¸ä¸€å®šå­˜åœ¨
+			//å¿…ç„¶è¦éå†ï¼ŒäºŒåˆ†ï¼Ÿçº¿æ€§ï¼Ÿ
+			//å¯ä»¥æŠŠç­–ç•¥ä¹Ÿå°è£…ä¸€ä¸‹
 			ssize_t index = 0;
 			ssize_t cap = node->_node.num;
 			while (index < cap && compare()(node->_node.key[index], target)) ++index;
-			NODEBUG(ENSURE(index < 0));
+			NODEBUG(ENSURE(index >= 0));
 			if (index < cap && !compare()(target, node->_node.key[index])) {
+#ifdef DEBUG_1
+				show(node, 0);
+				printf("cap:%d\r\n", cap);
+#endif
 				std::copy(node->_node.key + index + 1, node->_node.key + cap, node->_node.key + index);
 				node->_node.num -= 1;
 				btree_node_num -= 1;
 			}
 			else {
-				//Ã»ÓĞÕÒµ½
+				//æ²¡æœ‰æ‰¾åˆ°
 				NODEBUG(printf("404!\r\n"));
 			}
 		}
 		else {
-			//Õë¶ÔÖĞ¼ä½Úµã
-			//Ê×ÏÈÅĞ¶ÏÊÇ·ñÔÙnodeµÄkeyÖ®ÖĞ£¬²ßÂÔ¾ÍÊÇÑ°ÕÒÇ°¸°ºó¼Ì½ÚµãÌæ»»Ò»ÏÂ¼´¿É
+			//é’ˆå¯¹ä¸­é—´èŠ‚ç‚¹
+			//é¦–å…ˆåˆ¤æ–­æ˜¯å¦å†nodeçš„keyä¹‹ä¸­ï¼Œç­–ç•¥å°±æ˜¯å¯»æ‰¾å‰èµ´åç»§èŠ‚ç‚¹æ›¿æ¢ä¸€ä¸‹å³å¯
 			ssize_t index = 0;
 			ssize_t cap = node->_node.num;
 			node_pointer left;
 			node_pointer right;
-			//ÒÔ¿É¿¼ÂÇ·â×°Õâ¸öÑ°ÕÒ²ßÂÔ
-			//ÆäÊµ»¹Ó¦¸Ã¸ù¾İcompareÊÇ·ñ¾ßÓĞÅĞ¶Ï==ÄÜÁ¦ÖØĞÂ·Ö·¢Ò»ÏÂ£¬Òª²»È»»¹Òª¶îÍâ²Ù×÷
+			//ä»¥å¯è€ƒè™‘å°è£…è¿™ä¸ªå¯»æ‰¾ç­–ç•¥
+			//å…¶å®è¿˜åº”è¯¥æ ¹æ®compareæ˜¯å¦å…·æœ‰åˆ¤æ–­==èƒ½åŠ›é‡æ–°åˆ†å‘ä¸€ä¸‹ï¼Œè¦ä¸ç„¶è¿˜è¦é¢å¤–æ“ä½œ
 			while (index < cap && compare()(node->_node.key[index], target))++index;
 			if (index < cap && !compare()(target, node->_node.key[index])) {
 				//find it
-				//Ç°¸°
+				//å‰èµ´
 				left = node->_node.ptr[index];
 				right = node->_node.ptr[index + 1];
 				if (left->_node.num > M - 1) {
-					//left×ã¹»¶à,ÒÆ¹ıÀ´
+					//leftè¶³å¤Ÿå¤š,ç§»è¿‡æ¥
 					value_type prekey = btree_search_predecessor(left);
 					node->_node.key[index] = prekey;
 					btree_delete_nonone(left, prekey);
 				}
 				else if (right->_node.num > M - 1) {
-					//right×ã¹»¶à
+					//rightè¶³å¤Ÿå¤š
 					value_type nextkey = btree_search_successor(right);
 					node->_node.key[index] = nextkey;
 					btree_delete_nonone(right, nextkey);
 				}
 				else {
-					//´ËÊ±ÎŞÂÛÉ¾³ıÄÇ¸ö£¬¶¼»áµ¼ÖÂ×Ó½Úµã²»·ûºÏÌõ¼ş£¬ĞèÒªºÏ²¢
+					//æ­¤æ—¶æ— è®ºåˆ é™¤é‚£ä¸ªï¼Œéƒ½ä¼šå¯¼è‡´å­èŠ‚ç‚¹ä¸ç¬¦åˆæ¡ä»¶ï¼Œéœ€è¦åˆå¹¶
 					btree_merge_child(node, index, left, right);
 					btree_delete(left, target);
 				}
 			}
 			else {
-				//²»ÔÚnodeÖĞ£¬ĞèÒªÍûÏÂÈ¥
-				//´ËÊ±key[index]>target,¶øptr[index]Ö¸ÏòµÄ¶¼<key[index]
+				//ä¸åœ¨nodeä¸­ï¼Œéœ€è¦æœ›ä¸‹å»
+				//æ­¤æ—¶key[index]>target,è€Œptr[index]æŒ‡å‘çš„éƒ½<key[index]
 				left = node->_node.ptr[index];
-				//leftÊÇ·ñ×ã¹»É¾³ı£¬·ñÔòĞèÒªshift
-				//Á½ÖÖshift·½Ê½£¬left-1 -¡·left   or   left+1 -¡·left
-				
+				//leftæ˜¯å¦è¶³å¤Ÿåˆ é™¤ï¼Œå¦åˆ™éœ€è¦shift
+				//ä¸¤ç§shiftæ–¹å¼ï¼Œleft-1 -ã€‹left   or   left+1 -ã€‹left
+				node_pointer last = nullptr;
+				if (index > 0)
+					last = node->_node.ptr[index - 1];
 				if (left->_node.num == M - 1) {
-					//È·±£Ã»ÎÊÌâ
-					if (index != 0) {
-						node_pointer last = node->_node.ptr[index - 1]; 
-						if(last->_node.num > M - 1)
-							btree_shift_to_right(node, index - 1, last, left);
+					//ç¡®ä¿æ²¡é—®é¢˜
+					if (index != 0 && last->_node.num>M-1) {
+						//last = node->_node.ptr[index - 1]; 
+						btree_shift_to_right(node, index - 1, last, left);
 					}
-					else if (index<cap) {
+					else if (index<cap && node->_node.ptr[index+1]->_node.num>M-1) {
 					    right = node->_node.ptr[index + 1];
-						if(right->_node.num>M - 1)
-							btree_shift_to_right(node, index, left, right);
+						btree_shift_to_left(node, index, left, right);
 					}
 					else if (index != 0) {
-						//ÎŞ·¨shiftÊ±£¬ºÏ²¢£¬È»ºóÉ¾³ı
-                        node_pointer last = node->_node.ptr[index - 1];
+						//æ— æ³•shiftæ—¶ï¼Œåˆå¹¶ï¼Œç„¶ååˆ é™¤
+                        //node_pointer last = node->_node.ptr[index - 1];
 						btree_merge_child(node, index - 1, last, left);
 						left = last;
 					}
 					else {
-						//´ÓÁíÒ»¸ö·½ÏòºÏ²¢
+						//ä»å¦ä¸€ä¸ªæ–¹å‘åˆå¹¶
                         right = node->_node.ptr[index + 1];
 						btree_merge_child(node, index, left, right);
 					}
+
 				}
-				//È·±£Ã»ÎÊÌâÁË,µİ¹éÏÂÈ¥
+				//ç¡®ä¿æ²¡é—®é¢˜äº†,é€’å½’ä¸‹å»
 				btree_delete_nonone(left, target);
 				//}
 				//else {
-				//	//Ò»¿ªÊ¼¾ÍÃ»ÎÊÌâ
+				//	//ä¸€å¼€å§‹å°±æ²¡é—®é¢˜
 				//	btree_delete_nonone(left, target);
 				//}
 			}
 		}
 	}
+	template<typename pram>
+	void Btree<pram>::erase(Btree::value_type target) {
+		node_pointer x = root();
+		if (x == nullptr) {
+			return;
+		}
+		btree_delete(x, target);
+	}
 
-	//Ç°¸°ºó¼Ì
+	//å‰èµ´åç»§
 	template<typename pram>
 	typename Btree<pram>::value_type Btree<pram>::btree_search_predecessor(Btree::node_pointer node) {
-		//ÕÒµ½nodeÉÏÃæµÄ×î´óÖµ
+		//æ‰¾åˆ°nodeä¸Šé¢çš„æœ€å¤§å€¼
 		node_pointer most = node;
 		while (most->_node.is_leaf == 0) {
 			most = most->_node.ptr[most->_node.num];
@@ -987,33 +1018,33 @@ namespace BTree {
 
 	template<typename pram>
 	typename Btree<pram>::value_type Btree<pram>::btree_search_successor(Btree::node_pointer node) {
-		//ÕÒµ½nodeÉÏÃæ×îĞ¡Öµ
+		//æ‰¾åˆ°nodeä¸Šé¢æœ€å°å€¼
 		node_pointer most = node;
 		while (most->_node.is_leaf == 0) {
-			most = most->_node.ptr[most->_node.num];
+			most = most->_node.ptr[0];
 		}
-		return most->_node.key[most->_node.num - 1];
+		return most->_node.key[0];
 	}
 
-	//shift º¯Êı
-	//½ÓÒ»¸öµã¹ıÀ´£¬×¢ÒâËùÓĞµÄ±£Ö¤¶¼ÓÉµ÷ÓÃÕßÍê³É£¨½èÍêÖ®ºó²»»á³¬ÏŞ£©
+	//shift å‡½æ•°
+	//æ¥ä¸€ä¸ªç‚¹è¿‡æ¥ï¼Œæ³¨æ„æ‰€æœ‰çš„ä¿è¯éƒ½ç”±è°ƒç”¨è€…å®Œæˆï¼ˆå€Ÿå®Œä¹‹åä¸ä¼šè¶…é™ï¼‰
 	template<typename pram>
 	void Btree<pram>::btree_shift_to_left(Btree::node_pointer node, Btree::size_type pos, Btree::node_pointer left, Btree::node_pointer right) {
-		//Íâ²¿±£Ö¤rightµÄnum>M-1
-		//½èµÄµã¿ÉÄÜÊÇÒ¶×Ó£¬Ò²¿ÉÄÜÊÇÖĞ¼ä½Úµã
-		//ĞèÒª·Ö¿ªÅĞ¶Ï
-		//Êµ¼ÊÉÏÊÇnodeµÄpos¸øÁËleft,rightµÄ×îĞ¡µã¸øÁËnode
-		//ÏÈÒÆ¶¯key
+		//å¤–éƒ¨ä¿è¯rightçš„num>M-1
+		//å€Ÿçš„ç‚¹å¯èƒ½æ˜¯å¶å­ï¼Œä¹Ÿå¯èƒ½æ˜¯ä¸­é—´èŠ‚ç‚¹
+		//éœ€è¦åˆ†å¼€åˆ¤æ–­
+		//å®é™…ä¸Šæ˜¯nodeçš„posç»™äº†left,rightçš„æœ€å°ç‚¹ç»™äº†node
+		//å…ˆç§»åŠ¨key
 		ssize_t cap = right->_node.num;
 		left->_node.num += 1;
 		left->_node.key[left->_node.num - 1] = node->_node.key[pos];
 		node->_node.key[pos] = right->_node.key[0];
 		std::copy(right->_node.key + 1, right->_node.key + cap, right->_node.key);
-		//È»ºóÒÆ¶¯ptr
+		//ç„¶åç§»åŠ¨ptr
 		if (left->_node.is_leaf == 0) {
 			left->_node.ptr[left->_node.num] = right->_node.ptr[0];
 			std::copy(right->_node.ptr + 1, right->_node.ptr + (cap + 1), right->_node.ptr);
-			//ÕâÊÇ±ØÒªµÄÂğ£¿£¿
+			//è¿™æ˜¯å¿…è¦çš„å—ï¼Ÿï¼Ÿ
 			right->_node.ptr[cap] = nullptr;
 		}
 		right->_node.num -= 1;
@@ -1022,8 +1053,8 @@ namespace BTree {
 
 	template<typename pram>
 	void Btree<pram>::btree_shift_to_right(Btree::node_pointer node, Btree::size_type pos, Btree::node_pointer left, Btree::node_pointer right) {
-		//ÁíÒ»¸ö¶Ô³ÆµÄshift
-		//°ÑleftµÄ×î´ó->root,root->right
+		//å¦ä¸€ä¸ªå¯¹ç§°çš„shift
+		//æŠŠleftçš„æœ€å¤§->root,root->right
 		ssize_t cap = right->_node.num;
 		ssize_t cap_l = left->_node.num;
 		right->_node.num += 1;
@@ -1032,62 +1063,95 @@ namespace BTree {
 		node->_node.key[pos] = left->_node.key[cap_l - 1];
 		if (left->_node.is_leaf==0) {
 			std::copy_backward(right->_node.ptr, right->_node.ptr + cap,	right->_node.ptr + cap + 1);
-			right->_node.ptr[0] = left->_node.ptr[cap_l - 1];
-			left->_node.ptr[cap_l - 1] = nullptr;
+			right->_node.ptr[0] = left->_node.ptr[cap_l];
+			left->_node.ptr[cap_l] = nullptr;
 		}
 		left->_node.num -= 1;
 		NODEBUG(printf("%d", left->_node.num));
 	}
 
-	//ÖĞĞò±éÀú£¬²âÊÔÓÃ
+	//ä¸­åºéå†ï¼Œæµ‹è¯•ç”¨
 	template<typename pram>
 	void Btree<pram>::btree_inorder_traversal(Btree::node_pointer node) {
-		if (node != nullptr)
+		if (node == nullptr)
+			return;
+		if (0 == node->_node.is_leaf) {
 			btree_inorder_traversal(node->_node.ptr[0]);
-		ssize_t cap = node->_node.num;
-		for (ssize_t i = 0; i < cap; ++i) {
-			printf("%d,", node->_node.key[i]);
-			btree_inorder_traversal(node->_node.ptr[i + 1]);
+			ssize_t cap = node->_node.num;
+			for (ssize_t i = 0; i < cap; ++i) {
+				printf("%d,", node->_node.key[i]);
+				btree_inorder_traversal(node->_node.ptr[i + 1]);
+			}
 		}
+		else {
+			//å¯¹å¶å­èŠ‚ç‚¹åªéœ€è¦æ‰“å°nodeå³å¯
+        	ssize_t cap = node->_node.num;
+			for (ssize_t i = 0; i < cap; ++i) {
+				printf("%d,", node->_node.key[i]);
+			}
+		}
+		printf("\r\n");
 	}
 
-	//¹ã¶È±éÀú£¬²âÊÔÓÃ
+	//å¹¿åº¦éå†ï¼Œæµ‹è¯•ç”¨
 	template<typename pram>
 	void Btree<pram>::btree_level_traversal(Btree::node_pointer node) {
-		//½èÖúÓÚqueueÊµÏÖ
+		//å€ŸåŠ©äºqueueå®ç°
+		//è°ƒè¯•ç”¨
+#ifdef DEBUG_1
+		int num_count = 0;
+#endif
 		if (node == nullptr)
 			return;
 		std::queue<node_pointer>Q;
 		Q.push(node);
 		while (!Q.empty()) {
-			ssize_t cap = node->_node.num;
 			node_pointer cur = Q.front();
 			Q.pop();
 			if (cur == nullptr)
 				continue;
 
 			printf("[");
+			ssize_t cap = cur->_node.num;
 			for (ssize_t i = 0; i < cap; ++i) {
 				printf("%d,", cur->_node.key[i]);
+#ifdef DEBUG_1
+				num_count += 1;
+#endif
 
 			}
 			printf("]");
-			if (cur->_node.is_leaf == 1) {
+			if (cur->_node.is_leaf == 0) {
 				for (ssize_t i = 0; i <= cap; ++i) {
 					Q.push(cur->_node.ptr[i]);
 				}
 			}
 		}
+		printf("\r\n");
+#ifdef DEBUG_1
+		printf("Tree total:%d(real print:%d)\r\n\r\n", btree_node_num, num_count);
+#endif
+	}
+
+	//publicæ¥å£
+	template<typename pram>
+	void Btree<pram>::show(Btree::node_pointer node, ssize_t flag) {
+		if (flag == 0) {
+
+			btree_level_traversal(node);
+		}
+		else 
+			btree_inorder_traversal(node);
 	}
 
 	template<typename pram>
 	void Btree<pram>::Save(Btree::node_pointer node) {
-		//µÈ´ıÀ©Õ¹
-		//Í¨¹ıÄÚ´æÓ³Éä°ÑÊı¾İĞ´Èë£¿
+		//ç­‰å¾…æ‰©å±•
+		//é€šè¿‡å†…å­˜æ˜ å°„æŠŠæ•°æ®å†™å…¥ï¼Ÿ
 		;
 	}
 
-	//¹¹Ôìº¯Êı£¬×ªµ÷½Ó¿Ú¼´¿É
+	//æ„é€ å‡½æ•°ï¼Œè½¬è°ƒæ¥å£å³å¯
 	template<typename pram>
 	Btree<pram>::Btree() {
 		btree_create();
@@ -1098,6 +1162,724 @@ namespace BTree {
 	Btree<pram>::~Btree() {
 		//Tree::~Tree();
 	}
+
+
+
+
+
+	/////////////////////////////////////////////
+	/////////////////////////////////////////////
+	/////////////////////////////////////////////
+	/*B+treeå®ç°*/
+	//åœ¨B-treeåŸºç¡€ä¸Šåšäº†éƒ¨åˆ†ä¼‘æ•´
+	/////////////////////////////////////////////
+	/////////////////////////////////////////////
+	/////////////////////////////////////////////
+	/*B+treeç±»*/
+	//ç»§æ‰¿è‡ªTree
+	//æ€»ä½“æ¶æ„æ˜¯headeræ˜¯ä¸€ä¸ªinternalï¼Œä½†æ˜¯è¢«æ ‡è®°ä¸ºleaf,å®ƒæŒ‡å‘æœ€å·¦å’Œæœ€å³ï¼Œè‡ªèº«ç›¸å½“äºend,å®ƒå’Œæ ‘çš„rootäº’ç›¸æœ€ä¸ºçˆ¶èŠ‚ç‚¹ï¼Œä»¥æ­¤åŒºåˆ†
+	template<typename pram>
+	class Bplustree :public Tree<pram> {
+	public:
+		typedef Tree<pram> super_type;
+		typedef super_type::node_type node_type;
+		typedef super_type::node_pointer node_pointer;
+		typedef super_type::size_type size_type;
+		typedef super_type::init_leaf init_leaf;////////å¯è°ƒç”¨å¯¹è±¡ï¼Œç”¨äºåˆå§‹åŒ–leaf
+		typedef super_type::init_internal init_internal;//////ç”¨äºåˆå§‹åŒ–internal
+		typedef super_type::compare compare;///æ¯”è¾ƒæ“ä½œ
+		typedef typename node_type::leaf_node leaf_node;////////leaf_nodeç±»å‹ï¼Œï¼Œä¸ä¸Šé¢çš„æ˜¯å¯¹åº”çš„malloc,constructçš„
+		typedef typename node_type::internal_node internal_node;///////internal_nodeç±»å‹
+		//value_type ï¼Œkey_typeåœ¨setä¸­ä¸€æ ·
+		//åœ¨mapä¸­ä¸åŒï¼Œå‰è€…ä¸ºpair
+		//keyofvalueåœ¨setä¸­ä¸ºidentity
+		//åœ¨mapä¸­ä¸ºselect1st
+		typedef typename pram::value_type value_type;
+		typedef typename pram::key_type key_type;
+		typedef typename pram::keyofvalue keyofvalue;
+		//ä¸‹é¢çš„å‡ ä¸ªå¿…é¡»è¦usingä¹‹åæ‰ä¼šè¢«ç¼–è¯‘å™¨ç¤ºä¾‹åŒ–ï¼ï¼ï¼ï¼ï¼å•Šå•Šå•Š
+		using super_type::root;
+		using super_type::header;
+		using super_type::leftmost;
+		using super_type::rightmost;
+		using super_type::M;
+		using super_type::btree_node_num;
+		using super_type::pfile;
+		using super_type::_destroy;
+		using super_type::clear;
+		
+		typedef btree_iter<pram> iterator;   ////è¿­ä»£å™¨
+	protected:
+		//INITç›¸å…³ï¼Œæ„é€ å‡½æ•°è°ƒç”¨ä¹‹
+		//åˆå§‹åŒ–tree
+		virtual node_pointer btree_create();
+		//åˆ›å»ºä¸€ä¸ªnode
+		virtual node_pointer btree_node_new(ssize_t i); //0ä¸ºinternal,éé›¶ä¸ºleaf
+		//è¾…åŠ©å‡½æ•°
+		virtual node_pointer btree_node_new_leaf();//
+		virtual node_pointer btree_node_new_internal();
+
+		//åˆ†è£‚ä¸€ä¸ªè¶…é™çš„èŠ‚ç‚¹
+		virtual size_type btree_split_child(node_pointer parent, size_type pos, node_pointer child);
+		//virtual size_type btree_split_child(iterator iter, node_pointer child);
+		//æ’å…¥ä¸€ä¸ªèŠ‚ç‚¹,å€¼ä¸ºtarget,è¾…åŠ©ç‰ˆæœ¬æ˜¯åœ¨å½“å‰èŠ‚ç‚¹ä¸ºæ»¡çš„æƒ…å†µä¸‹
+		virtual std::pair<node_pointer,bool> btree_insert(node_pointer root, value_type target);
+		virtual std::pair<node_pointer,bool> btree_insert_nofull(node_pointer root, value_type target);
+		//åˆå¹¶ä¸¤ä¸ªM-1å…ƒç´ çš„èŠ‚ç‚¹
+		virtual void btree_merge_child(node_pointer root, size_type pos, node_pointer y, node_pointer z);
+		//åˆ é™¤ä¸€ä¸ªå¶å­èŠ‚ç‚¹ï¼Œåœ¨rootèŠ‚ç‚¹è‡³å°‘æœ‰Mä¸ªçš„æƒ…å†µä¸‹
+		virtual void btree_delete(node_pointer root, value_type target);
+		virtual void btree_delete_nonone(node_pointer root, value_type target);
+
+		//Iterator ç›¸å…³
+		//å¯»æ‰¾å‰èµ´èŠ‚ç‚¹
+		virtual iterator btree_search_predecessor(node_pointer root);
+		//å¯»æ‰¾åé™„èŠ‚ç‚¹
+		virtual iterator btree_search_successor(node_pointer root);
+		//å‰è¿›åé€€çš„è¾…åŠ©å‡½æ•°ï¼Œå…¶å®åº”è¯¥å•ç‹¬å»ºä¸€ä¸ªiteratorç±»
+		//virtual void increament(node_pointer root);
+		//virtual void decreament(node_pointer root);
+
+		//ä¸¤ç§æ—‹è½¬
+		virtual void btree_shift_to_left(node_pointer root, size_type pos, node_pointer y, node_pointer z);
+		virtual void btree_shift_to_right(node_pointer root, size_type pos, node_pointer y, node_pointer z);
+		//éå†æ–¹å¼,LNR,å¹¿åº¦éå†
+		virtual void btree_inorder_traversal(node_pointer root);
+		virtual void btree_level_traversal(node_pointer root);
+		//ä¿å­˜
+		virtual void Save(node_pointer root);
+		//int laji();
+
+		void replace_mostleft(node_pointer node, value_type target);
+
+	public:
+		std::pair<node_pointer, bool> insert_equal(value_type target);
+		void erase(value_type);
+		void show(node_pointer node,ssize_t flag);
+		void linearshow();
+		void find(value_type target);
+		//å¸¸è§„çš„routine
+		iterator begin() { return iterator(leftmost(),0); }
+		const iterator begin() const { return iterator(leftmost(),0); }
+		iterator end() { return iterator(header,-1); }/////çº¦å®šä¸€ä¸‹endçš„ç»“æ„
+		const iterator end() const { return iterator(header,-1); }
+
+
+		//æµ‹è¯•ä½¿ç”¨
+#ifdef DEBUG_1
+		value_type ceshi() {
+			return header->_node.parent->_node.key[0];
+		}
+#endif
+
+	public:
+		Bplustree();
+		~Bplustree();	
+
+	};
+
+
+
+	/*Bplustreeå®ç°*/
+	template<typename pram>
+	typename Bplustree<pram>::node_pointer Bplustree<pram>::btree_create() {
+		//init_tree
+		header = btree_node_new(0);
+		//å«Œéº»çƒ¦æ²¡æœ‰é¢å¤–å®šä¹‰ä¸€ä¸ªrootèŠ‚ç‚¹ï¼Œç”¨ä¸€ä¸ªinternalèŠ‚ç‚¹ä»£æ›¿
+		ENSURE(header);
+		if (header == nullptr)
+			exit(EXIT_FAILURE);
+		//åˆå§‹åŒ–æ•°æ®ç»“æ„
+		header->_node.is_leaf = true;///æŠŠä¸€ä¸ªä¸­é—´èŠ‚ç‚¹å½“æˆleafç”¨
+		//header->_node.num = 1;
+		root() = nullptr;
+		//header->_node.prev = nullptr;  //å·²ç»é€šè¿‡initå®Œæˆäº†æ­¤å¤„åˆå§‹åŒ–ï¼Œå¤šä½™
+		//header->_node.next = nullptr;
+		leftmost() = header;
+		rightmost() = header;
+		btree_node_num = 0;
+		NODEBUG(printf("B+Tree init: header at %p\r\n", header));
+		return header;
+	}
+
+	template<typename pram>
+	typename Bplustree<pram>::node_pointer Bplustree<pram>::btree_node_new(ssize_t i) {
+		//ä½œç”¨å°±æ˜¯åˆ†å‘ï¼ŒåŒå±‚ç»“æ„
+		return i == 0 ? btree_node_new_internal() : btree_node_new_leaf();
+	}
+
+	template<typename pram>
+	typename Bplustree<pram>::node_pointer Bplustree<pram>::btree_node_new_leaf() {
+		//ä½œç”¨æ˜¯mallocä¸€ä¸ªnodeèŠ‚ç‚¹
+		leaf_node* newnode = reinterpret_cast<leaf_node*>(malloc(sizeof(leaf_node)));
+		NODEBUG(printf("New Leaf Node at %p\r\n", newnode));
+		NODEBUG(printf("len: %d\r\n", sizeof(leaf_node)));
+		ENSURE(newnode);
+		if (newnode == nullptr)
+			return nullptr;
+		return init_leaf()(newnode, nullptr);
+	}
+
+	template<typename pram>
+	typename Bplustree<pram>::node_pointer Bplustree<pram>::btree_node_new_internal() {
+		//ä½œç”¨æ˜¯mallocä¸€ä¸ªnodeèŠ‚ç‚¹,å¹¶åˆå§‹åŒ–
+		internal_node* newnode = reinterpret_cast<internal_node*>(malloc(sizeof(internal_node)));
+		NODEBUG(printf("New Internal Node at %p\r\n", newnode));
+		NODEBUG(printf("len: %d\r\n", sizeof(internal_node)));
+		ENSURE(newnode);
+		if (newnode == nullptr)
+			return nullptr;
+		return init_internal()(newnode, nullptr);
+	}
+	//ä»¥ä¸Šä¸åˆå§‹åŒ–ç›¸å…³
+
+	//ä¸€ä¸‹ä¸åˆ†è£‚ç›¸å…³
+	template<typename pram>
+	typename Bplustree<pram>::size_type Bplustree<pram>::btree_split_child(Bplustree::node_pointer parent,
+		Bplustree::size_type pos, Bplustree::node_pointer child) {
+		//è¿™é‡Œé‡‡ç”¨äº†ä¸€ç§é¢„å…ˆåˆ†è£‚çš„å¤„ç†æ”¾è‚†
+		//å½“ä¸€ä¸ªèŠ‚ç‚¹çš„keyè¾¾åˆ°äº†2*M-1ä¸ªæ—¶ï¼Œéå†åˆ°æ­¤ï¼Œå°±ä¸»åŠ¨åˆ†ç¦»ä¹‹
+		//åˆ†æˆäº†ä¸‰éƒ¨åˆ†ï¼ŒM-1ä¸ªåˆ°å·¦ï¼Œä¸€ä¸ªä¸Šå‡åˆ°parent,M-1ä¸ªåˆ°å³ä¾§
+		//ç”±äºé‡‡ç”¨é¢„å…ˆåˆ†ç¦»ï¼Œæ‰€ä»¥å³ä¾¿ä¸Šå‡ä¸€ä¸ªåˆ°parentä¸­ï¼Œä»ç„¶ä¸ä¼šè¶…é™ï¼Œä¸éœ€è¦é€’å½’balance
+		ssize_t nodetype = child->_node.is_leaf;//æ–°åˆ†è£‚çš„èŠ‚ç‚¹åº”è¯¥ä¸åŸæ¥æ˜¯åŒç§ç±»å‹
+		node_pointer new_child = btree_node_new(nodetype);
+		ENSURE(new_child);
+		new_child->_node.num = M - 1;///åˆ°å³ä¾§å»
+		//ä¹Ÿå¯ä»¥å¾ªç¯å¤åˆ¶ï¼Œå‰ææ—¶value_typeå®šä¹‰äº†æ‹·è´æ„é€ å‡½æ•°
+		//copyçš„é€»è¾‘ä¸ä¹‹å·®ä¸å¤šï¼Œä½†æ˜¯å¯¹äºplain_typeæ›´å¿«ä¸€äº›
+		std::copy(child->_node.key + M, child->_node.key + (M << 1) - 1, new_child->_node.key);
+		if (nodetype == 0) {
+			//ä¸­é—´èŠ‚ç‚¹è¿˜è¦æ‹·è´ptr
+			//æ³¨æ„æŒ‡é’ˆå¤šä¸€ä¸ª
+			std::copy(child->_node.ptr, child->_node.ptr + (M << 1), new_child->_node.ptr);
+		}
+		//å¤„ç†å‰©ä¸‹çš„(å‰åŠæ®µ)ä¸€åŠï¼Œåªéœ€è¦æ›´æ”¹ä¸€ä¸‹å·²åˆ†é…ç©ºé—´å°±å¯ä»¥äº†
+		child->_node.num = M - 1;
+		if (nodetype == 1) {
+			child->_node.num++;    // if leaf, keep the middle ele, put it in the left?????????
+		}
+		//å¯¹çˆ¶èŠ‚ç‚¹çš„æ’å…¥ä¸€ä¸ªkeyå’Œptr
+		ssize_t Pnum = parent->_node.num;//çˆ¶èŠ‚ç‚¹å·²ä½¿ç”¨æƒ…å†µ
+		//std::copy_backward(parent->_node.ptr + pos + 1, parent->_node.ptr + Pnum, parent->_node.ptr + Pnum + 1);//ennmmmm
+		std::copy_backward(parent->_node.ptr + pos + 1, parent->_node.ptr + Pnum + 1, parent->_node.ptr + Pnum + 2);
+		parent->_node.ptr[pos + 1] = new_child;//æŒ‡å‘å³èŠ‚ç‚¹
+		new_child->_node.position = pos + 1;//æ›´æ–°åœ¨çˆ¶èŠ‚ç‚¹ä¸­çš„ä½ç½®
+
+		//NODEBUG(print("å‰ï¼š%d",parent->_node.key[pos]));
+		std::copy_backward(parent->_node.key + pos, parent->_node.key + Pnum, parent->_node.key + Pnum + 1);
+		parent->_node.key[pos] = child->_node.key[M - 1];
+		parent->_node.num += 1;
+		
+		//bplusæ›´æ–°æŒ‡é’ˆ
+		if (nodetype == 1) {
+			new_child->_node.prev = child;
+			new_child->_node.next = child->_node.next;
+			if (child->_node.next) {
+				child->_node.next->prev = new_child;
+			}
+			child->_node.next = new_child;
+		}
+		NODEBUG(printf("%d\r\n", parent->_node.num));
+		return 0;
+	}
+
+	//åº”è¯¥å†é¢å¤–å®ç°ä¸€ä¸ªinsert_unique,,ä¸‹é¢çš„ç‰ˆæœ¬æ˜¯insert_equal
+	template<typename pram>
+	std::pair<typename Bplustree<pram>::node_pointer, bool> Bplustree<pram>::btree_insert_nofull(Bplustree::node_pointer node, 
+		Bplustree::value_type target) {
+		//åœ¨æœªæ»¡çš„æƒ…å†µä¸‹ï¼Œnum<2*M-1
+		//ä¿è¯æ¡ä»¶å°±æ˜¯åœ¨å¯»æ‰¾è¿‡ç¨‹ä¸­ï¼Œè‡ªåŠ¨balance
+		//è¿™ä¸ªinsertæ“ä½œæ˜¯åœ¨å·²nodeä¸ºæ ¹æ—¶å¯»æ‰¾æ’å…¥ç‚¹ï¼Œç„¶åinsert
+		if (node->_node.is_leaf == 1) {
+			//å·²ç»åˆ°è¾¾å¶å­
+			//ä»keyä¸­å¯»æ‰¾ï¼Œç”±äºBtreeè‡ªç„¶æœ‰åºï¼Œæ‰€ä»¥è¿™é‡Œå¯ä»¥äºŒåˆ†æœç´¢
+			//ä½†æ˜¯é€šè¿‡åå‘éå†ï¼Œå¯ä»¥é¡ºä¾¿copy_backward,,,
+			ssize_t pos = node->_node.num;
+			while (pos >= 1 && compare()(target, node->_node.key[pos - 1])) {
+				node->_node.key[pos] = node->_node.key[pos - 1];
+				--pos;
+			}
+			node->_node.key[pos] = target;
+			node->_node.num += 1;
+			btree_node_num += 1;
+
+			//åº”è¯¥è‡ªå·±å®šä¹‰ä¸€ä¸ªiterator
+			//å¦åˆ™è¿”å›çš„éƒ½æ˜¯ä¸€ä¸ªnode,è€Œæ²¡æœ‰ç²¾ç¡®åˆ°key
+			return std::make_pair(node, true);
+		}
+		else {
+			//éœ€è¦å‘ä¸‹å¯»æ‰¾
+			ssize_t pos = node->_node.num;
+			while (pos >= 1 && compare()(target, node->_node.key[pos - 1])) {
+				--pos;
+			}
+			ssize_t length = (M << 1) - 1;
+			if (length == node->_node.ptr[pos]->_node.num) {
+				//éœ€è¦åˆ†è£‚
+				//æ­¤å¤„
+				ENSURE(0 == btree_split_child(node, pos, node->_node.ptr[pos]));//enmm
+				if (compare()(target, node->_node.key[pos]))
+					;//æ–°ä¸Šå‡æ¥ä¸€ä¸ªèŠ‚ç‚¹
+				else
+					++pos;
+			}
+			return btree_insert_nofull(node->_node.ptr[pos], target);//é€’å½’
+		}
+	}
+
+	//æœ‰é—®é¢˜ï¼Œå¾…æ”¹è¿›
+	template<typename pram>
+	std::pair<typename Bplustree<pram>::node_pointer, bool> Bplustree<pram>::btree_insert(Bplustree::node_pointer node, Bplustree::value_type target) {
+		//åšä¸€ä¸ªæ£€æŸ¥ï¼Œç„¶åè½¬è°ƒbree_insert_nofullå‡½æ•°
+		//åŒæ—¶è¦ç»´æŠ¤headerçš„ç›¸å…³å±æ€§
+		/*åˆä¸Šä¸€å±‚ä¿è¯
+		if (node == nullptr) {
+			return std::make_pair(node,false);
+		}
+		*/
+		ssize_t length = (M << 1) - 1;
+		if (length == node->_node.num) {
+			//å¢åŠ æ ‘é«˜ï¼Œéœ€è¦åˆ†è£‚ï¼Œäº§ç”Ÿä¸€ä¸ªparent,å¿…ç„¶æ˜¯internal 
+			node_pointer newnode = btree_node_new(0);/////ç»è¿‡è¿™ä¸€æ­¥ä¹‹åï¼Œrootæ‰ä¸æ˜¯å¶å­
+			//newnode->_node.num = 1;   //è¿™æ˜¯å¤šä½™çš„
+			header->_node.parent = newnode;
+			newnode->_node.ptr[0] = node;
+			node->_node.position = 0;
+			btree_split_child(newnode, 0, node);//åˆå¹¶æ—¶æ›´æ–°num
+			return btree_insert_nofull(newnode, target);
+		}
+		else {
+			return btree_insert_nofull(node, target);
+			//return std::make_pair(node,true);
+		}
+	}
+	//insertçš„æ”¹è¿›
+	template<typename pram>
+	std::pair<typename Bplustree<pram>::node_pointer, bool> Bplustree<pram>::insert_equal(Bplustree::value_type target) {
+		//node_pointer y = header;
+		node_pointer x = root();
+		if (x == nullptr) {
+			x = btree_node_new(1);//////ç¬¬ä¸€ä¸ªrootåº”è¯¥æ˜¯ä¸€ä¸ªleaf
+			x->_node.parent = header;
+			header->_node.num = 1;
+			x->_node.num = 1;
+			x->_node.key[0] = target;
+			x->_node.ptr[0] = nullptr;
+			x->_node.ptr[1] = nullptr;
+			btree_node_num = 1;
+			leftmost() = x;
+			rightmost() = x;
+			root() = x;
+			NODEBUG(printf("Insert first node,root at %p\r\n", x));
+			return  std::make_pair(x, true);
+		}
+		return btree_insert(x, target);
+
+	}
+
+	//åˆå¹¶æ“ä½œ
+	template<typename pram>
+	void Bplustree<pram>::btree_merge_child(Bplustree::node_pointer node, Bplustree::size_type pos,
+		Bplustree::node_pointer left, Bplustree::node_pointer right) {
+		//æ­£å¥½æ˜¯split_childçš„åå‘æ“ä½œ
+		//ç”¨äºåœ¨deleteæ—¶è¿›è¡Œè‡ªåŠ¨balance
+		//å°†noedçš„key[pos],å’Œrightåˆå¹¶åˆ°leftä¸­å»
+		ssize_t length = (M << 1) - 1;
+		//ä¿®æ”¹å®¹é‡
+		left->_node.num = length;
+		//æ‹·è´key
+		left->_node.key[M - 1] = node->_node.key[pos];
+		std::copy(right->_node.key, right->_node.key + M - 1, left->_node.key + M);
+		//ä¿®æ”¹ptr
+		if (right->_node.is_leaf == 0) {
+			std::copy(right->_node.ptr, right->_node.ptr + M, left->_node.ptr + M);
+		}
+		//æ ¹èŠ‚ç‚¹è°ƒæ•´
+		length = node->_node.num;
+		std::copy(node->_node.ptr + pos + 2, node->_node.ptr + length + 1, node->_node.ptr + pos + 1);
+		std::copy(node->_node.key + pos + 1, node->_node.key + length, node->_node.key + pos);
+		node->_node.num -= 1;
+		//æŒ‡é’ˆè°ƒæ•´
+		if (left->_node.is_leaf == 1) {
+			left->_node.next = right->_node.next;
+			right->next->_node.prev = left;
+		}
+		//é‡Šæ”¾ç©ºé—´
+		_destroy(right);
+	}
+
+	//deleteèŠ‚ç‚¹
+	template<typename pram>
+	void Bplustree<pram>::btree_delete(Bplustree::node_pointer node, Bplustree::value_type target) {
+		//å’Œåˆå¹¶ä¸€æ ·çš„é“ç†
+		//æ’é™¤ä¸€äº›ç‰¹æ®Šæƒ…å†µï¼Œç„¶åè°ƒç”¨æ¥å£
+		//å°±æ˜¯å€¼å¾—æ˜¯æ¶‰äº‹çš„ä¸‰ä¸ªèŠ‚ç‚¹éƒ½æ˜¯ä¸´ç•Œå€¼ï¼ŒM-1ï¼Œ1ï¼ŒM-1ï¼Œæ­¤æ—¶æ— è®ºåˆ é™¤å“ªä¸€ä¸ªå¿…ç„¶è¦é™ä½æ ‘çš„é«˜åº¦ï¼Œé‡Šæ”¾æ‰æ ¹
+		/*if (nullptr == node)
+			return nullptr;
+			*/
+		if (node->_node.num == 1) {
+			node_pointer left = node->_node.ptr[0];
+			node_pointer right = node->_node.ptr[1];
+			if (left && right && left->_node.num == M - 1 && right->_node.num == M - 1) {
+				//å…¨éƒ¨åˆå¹¶ä¹‹åä¸º2*M-1ä¸ªï¼Œå†åˆ é™¤ä¸€ä¸ªå‡ ç‚¹ï¼Œä¸å­˜åœ¨å›æº¯çš„è€ƒè™‘äº†
+				btree_merge_child(node, 0, left, right);
+				_destroy(node);//ä¸Šä¸€æ­¥ä¸€å®šæŠŠnodeçš„numè°ƒæ•´ä¸º0äº†
+				btree_delete_nonone(left, target);
+				return;
+			}
+		}
+		btree_delete_nonone(node, target);
+		return;
+	}
+
+	template<typename pram>
+	void Bplustree<pram>::btree_delete_nonone(Bplustree::node_pointer node, Bplustree::value_type target) {
+		//å†ä¿è¯nodeèŠ‚ç‚¹ä¸ä¼šå‡ºé”™çš„æƒ…å†µä¸‹
+		//è‡³å¤šè°ƒæ•´ä¸€ä¸‹nodeèŠ‚ç‚¹ï¼Œä¸”ä¸ä¼šå®Œå…¨æ•´ä¸ªåˆ é™¤nodeèŠ‚ç‚¹
+		if (1 == node->_node.is_leaf) {
+			//é’ˆå¯¹å¶å­èŠ‚ç‚¹
+			//å’Œinsert_equalä¸åŒï¼Œåˆ é™¤çš„å…ƒç´ ä¸ä¸€å®šå­˜åœ¨
+			//å¿…ç„¶è¦éå†ï¼ŒäºŒåˆ†ï¼Ÿçº¿æ€§ï¼Ÿ
+			//å¯ä»¥æŠŠç­–ç•¥ä¹Ÿå°è£…ä¸€ä¸‹
+			ssize_t index = 0;
+			ssize_t cap = node->_node.num;
+			while (index < cap && compare()(node->_node.key[index], target)) ++index;
+			NODEBUG(ENSURE(index >= 0));
+			if (index < cap && !compare()(target, node->_node.key[index])) {
+#ifdef DEBUG_1
+				show(node, 0);
+				printf("cap:%d\r\n", cap);
+#endif
+				std::copy(node->_node.key + index + 1, node->_node.key + cap, node->_node.key + index);
+				node->_node.num -= 1;
+				btree_node_num -= 1;
+			}
+			else {
+				//æ²¡æœ‰æ‰¾åˆ°
+				NODEBUG(printf("404!\r\n"));
+			}
+		}
+		/*else {
+			//////////å­˜ç–‘
+			
+			
+			ssize_t i = 0;
+			node_pointer y = nullptr, z = nullptr;
+			ssize_t len = node->_node.num;
+			while (i < len && compare()( node->_node.key[pos - 1],target)) --pos;
+			y = node->_node.ptr[i];
+			if (i < len) {
+				z = node->_node.ptr[i + 1];
+			}
+			node_pointer p = nullptr;
+			if (i > 0) {
+				p = node->_node.ptr[i - 1];
+			}
+			if (y->_node.num == M - 1) {
+				if (i > 0 && p->_node.num > M - 1) {
+					btree_shift_to_right_child(root, i - 1, p, y);
+				}
+				else if (i < root->_node.num && z->_node.num > M - 1) {
+					btree_shift_to_left_child(root, i, y, z);
+				}
+				else if (i > 0) {
+					btree_merge_child(root, i - 1, p, y);
+					y = p;
+				}
+				else {
+					btree_merge_child(root, i, y, z);
+				}
+				btree_delete_nonone(y, target);
+			}
+			else {
+				btree_delete_nonone(y, target);
+			}
+		}*/
+		else {
+			//é’ˆå¯¹ä¸­é—´èŠ‚ç‚¹
+			//é¦–å…ˆåˆ¤æ–­æ˜¯å¦å†nodeçš„keyä¹‹ä¸­ï¼Œç­–ç•¥å°±æ˜¯shiftå¡«è¡¥ç©ºç¼º
+			ssize_t index = 0;
+			ssize_t cap = node->_node.num;
+			node_pointer left;
+			node_pointer right;
+			//ä»¥å¯è€ƒè™‘å°è£…è¿™ä¸ªå¯»æ‰¾ç­–ç•¥
+			//å…¶å®è¿˜åº”è¯¥æ ¹æ®compareæ˜¯å¦å…·æœ‰åˆ¤æ–­==èƒ½åŠ›é‡æ–°åˆ†å‘ä¸€ä¸‹ï¼Œè¦ä¸ç„¶è¿˜è¦é¢å¤–æ“ä½œ
+			while (index < cap && compare()(node->_node.key[index], target))++index;
+
+			//è¿™é‡Œå’Œbtreeç¨å¾®ä¸åŒåœ¨äºï¼Œb+treeä¸€å®šè¦åœ¨å¶å­èŠ‚ç‚¹åˆ é™¤
+			if (index < cap && !compare()(target, node->_node.key[index])) {
+				//ç´¢å¼•å°±æ˜¯è¦åˆ é™¤çš„ä¸€éƒ¨åˆ†
+				left = node->_node.ptr[index];//å°äºçš„éƒ¨åˆ†
+				right = node->_node.ptr[index + 1];//è¦åˆ é™¤çš„ä½äºæ­¤å¤„
+				if (right->_node.num > M - 1) {
+					//å³ä¾§å¡«è¡¥ç´¢å¼•ç©ºç¼º
+					iterator nex = btree_search_successor(right, target);
+					node->_node.key[index] = *(++nex);
+					btree_delete_nonone(right, target);
+				}
+				else if (left->_node.num > M - 1) {
+					//å·¦ä¾§å¡«è¡¥
+					iterator pre = btree_search_predecessor(left, target);
+					node->_node.key[index] = *pre;
+					//å·¦ä¾§æœ€å·¦ä¾§çš„å€¼è¢«æ›¿æ¢
+					replace_mostleft(right,target,*pre);
+					//å³ä¾§è¢«åˆ é™¤
+					btree_delete_nonone(left, *pre);
+				}
+				else {
+					//éœ€è¦åˆå¹¶
+					btree_merge_child(node, index, left, right);
+					btree_delete_nonone(left, target);
+				}
+			}
+			else {
+				//ä¸åœ¨nodeä¸­ï¼Œéœ€è¦æœ›ä¸‹å»
+				//æ­¤æ—¶key[index]>target,è€Œptr[index]æŒ‡å‘çš„éƒ½<key[index]
+				left = node->_node.ptr[index];
+				//leftæ˜¯å¦è¶³å¤Ÿåˆ é™¤ï¼Œå¦åˆ™éœ€è¦shift
+				//ä¸¤ç§shiftæ–¹å¼ï¼Œleft-1 -ã€‹left   or   left+1 -ã€‹left
+				node_pointer last = nullptr;
+				if (index > 0)
+					last = node->_node.ptr[index - 1];
+				if (left->_node.num == M - 1) {
+					//ç¡®ä¿æ²¡é—®é¢˜
+					if (index != 0 && last->_node.num > M - 1) {
+						//last = node->_node.ptr[index - 1]; 
+						btree_shift_to_right(node, index - 1, last, left);
+					}
+					else if (index<cap && node->_node.ptr[index + 1]->_node.num>M - 1) {
+						right = node->_node.ptr[index + 1];
+						btree_shift_to_left(node, index, left, right);
+					}
+					else if (index != 0) {
+						//æ— æ³•shiftæ—¶ï¼Œåˆå¹¶ï¼Œç„¶ååˆ é™¤
+						//node_pointer last = node->_node.ptr[index - 1];
+						btree_merge_child(node, index - 1, last, left);
+						left = last;
+					}
+					else {
+						//ä»å¦ä¸€ä¸ªæ–¹å‘åˆå¹¶
+						right = node->_node.ptr[index + 1];
+						btree_merge_child(node, index, left, right);
+					}
+
+				}
+				//ç¡®ä¿æ²¡é—®é¢˜äº†,é€’å½’ä¸‹å»
+				btree_delete_nonone(left, target);
+				//}
+				//else {
+				//	//ä¸€å¼€å§‹å°±æ²¡é—®é¢˜
+				//	btree_delete_nonone(left, target);
+				//}
+			}
+		}
+	}
+
+	template<typename pram>
+	void Bplustree<pram>::replace_mostleft(Bplustree::node_pointer node,Bplustree::value_type target) {
+		if (node == nullptr)
+			return;
+		while (!node->_node.is_leaf) {
+			node = node->_node.ptr[0];
+		}
+		node->_node.key[0] = target;
+	}
+
+	template<typename pram>
+	void Bplustree<pram>::erase(Bplustree::value_type target) {
+		node_pointer x = root();
+		if (x == nullptr) {
+			return;
+		}
+		btree_delete(x, target);
+	}
+
+	//å‰èµ´åç»§
+	template<typename pram>
+	typename Bplustree<pram>::iterator Bplustree<pram>::btree_search_predecessor(Bplustree::node_pointer node) {
+		//æ‰¾åˆ°nodeä¸Šé¢çš„æœ€å¤§å€¼
+		node_pointer most = node;
+		while (most->_node.is_leaf == 0) {
+			most = most->_node.ptr[most->_node.num];
+		}
+		return iterator(most,most->_node.num - 1);
+	}
+
+	template<typename pram>
+	typename Bplustree<pram>::iterator Bplustree<pram>::btree_search_successor(Bplustree::node_pointer node) {
+		//æ‰¾åˆ°nodeä¸Šé¢æœ€å°å€¼
+		node_pointer most = node;
+		while (most->_node.is_leaf == 0) {
+			most = most->_node.ptr[0];
+		}
+		return iterator(most,0);
+	}
+
+	//shift å‡½æ•°
+	//æ¥ä¸€ä¸ªç‚¹è¿‡æ¥ï¼Œæ³¨æ„æ‰€æœ‰çš„ä¿è¯éƒ½ç”±è°ƒç”¨è€…å®Œæˆï¼ˆå€Ÿå®Œä¹‹åä¸ä¼šè¶…é™ï¼‰
+	template<typename pram>
+	void Bplustree<pram>::btree_shift_to_left(Bplustree::node_pointer node, Bplustree::size_type pos,
+		Bplustree::node_pointer left, Bplustree::node_pointer right) {
+		//å¤–éƒ¨ä¿è¯rightçš„num>M-1
+		//å€Ÿçš„ç‚¹å¯èƒ½æ˜¯å¶å­ï¼Œä¹Ÿå¯èƒ½æ˜¯ä¸­é—´èŠ‚ç‚¹
+		//éœ€è¦åˆ†å¼€åˆ¤æ–­
+		//1,2<--3-->3,4,5  å˜ä¸º  1ï¼Œ2ï¼Œ3ã€Š--4--ã€‹4ï¼Œ5
+		ssize_t cap = right->_node.num;
+		left->_node.num += 1;
+		left->_node.key[left->_node.num - 1] = right->_node.key[0];//åŒºåˆ«äºä¸tree
+		node->_node.key[pos] = right->_node.key[1];//åŒºåˆ«äºBtree
+		std::copy(right->_node.key + 1, right->_node.key + cap, right->_node.key);
+		//ç„¶åç§»åŠ¨ptr
+		if (left->_node.is_leaf == 0) {
+			left->_node.ptr[left->_node.num] = right->_node.ptr[0];
+			std::copy(right->_node.ptr + 1, right->_node.ptr + (cap + 1), right->_node.ptr);
+			//è¿™æ˜¯å¿…è¦çš„å—ï¼Ÿï¼Ÿ
+			//right->_node.ptr[cap] = nullptr;
+		}
+		right->_node.num -= 1;
+		NODEBUG(printf("%d", right->_node.num));
+	}
+
+	template<typename pram>
+	void Bplustree<pram>::btree_shift_to_right(Bplustree::node_pointer node, Bplustree::size_type pos,
+		Bplustree::node_pointer left, Bplustree::node_pointer right) {
+		//å¦ä¸€ä¸ªå¯¹ç§°çš„shift
+		//1,2,3ã€Š--4--ã€‹4,5     å˜ä¸º1ï¼Œ2ã€Š--3--ã€‹3ï¼Œ4ï¼Œ5
+		ssize_t cap = right->_node.num;
+		ssize_t cap_l = left->_node.num;
+		right->_node.num += 1;
+		std::copy_backward(right->_node.key, right->_node.key + cap, right->_node.key + cap + 1);
+		right->_node.key[0] = left->_node.key[cap_l-1];////è¿™é‡Œå’Œbtreeä¸åŒï¼Œä¸æ˜¯ä»çˆ¶èŠ‚ç‚¹è·å¾—ï¼Œè€Œæ˜¯ç›´æ¥ä»å…„å¼ŸèŠ‚ç‚¹è·å¾—
+		node->_node.key[pos] = left->_node.key[cap_l - 1];
+
+		//æŒ‡é’ˆæ–¹é¢ç§»åŠ¨
+		if (left->_node.is_leaf == 0) {
+			std::copy_backward(right->_node.ptr, right->_node.ptr + cap, right->_node.ptr + cap + 1);
+			right->_node.key[0] = left->_key[cap_l];
+		}
+		left->_node.num -= 1;
+		NODEBUG(printf("%d", left->_node.num));
+	}
+
+	//ä¸­åºéå†ï¼Œæµ‹è¯•ç”¨
+	template<typename pram>
+	void Bplustree<pram>::btree_inorder_traversal(Bplustree::node_pointer node) {
+		if (node == nullptr)
+			return;
+		if (0 == node->_node.is_leaf) {
+			btree_inorder_traversal(node->_node.ptr[0]);
+			ssize_t cap = node->_node.num;
+			for (ssize_t i = 0; i < cap; ++i) {
+				printf("%d,", node->_node.key[i]);
+				btree_inorder_traversal(node->_node.ptr[i + 1]);
+			}
+		}
+		else {
+			//å¯¹å¶å­èŠ‚ç‚¹åªéœ€è¦æ‰“å°nodeå³å¯
+			ssize_t cap = node->_node.num;
+			for (ssize_t i = 0; i < cap; ++i) {
+				printf("%d,", node->_node.key[i]);
+			}
+		}
+		printf("\r\n");
+	}
+
+	//å¹¿åº¦éå†ï¼Œæµ‹è¯•ç”¨
+	template<typename pram>
+	void Bplustree<pram>::btree_level_traversal(Bplustree::node_pointer node) {
+		//å€ŸåŠ©äºqueueå®ç°
+		//è°ƒè¯•ç”¨
+#ifdef DEBUG_1
+		int num_count = 0;
+#endif
+		if (node == nullptr)
+			return;
+		std::queue<node_pointer>Q;
+		Q.push(node);
+		while (!Q.empty()) {
+			node_pointer cur = Q.front();
+			Q.pop();
+			if (cur == nullptr)
+				continue;
+
+			printf("[");
+			ssize_t cap = cur->_node.num;
+			for (ssize_t i = 0; i < cap; ++i) {
+				printf("%d,", cur->_node.key[i]);
+#ifdef DEBUG_1
+				num_count += 1;
+#endif
+
+			}
+			printf("]");
+			if (cur->_node.is_leaf == 0) {
+				for (ssize_t i = 0; i <= cap; ++i) {
+					Q.push(cur->_node.ptr[i]);
+				}
+			}
+		}
+		printf("\r\n");
+#ifdef DEBUG_1
+		printf("Tree total:%d(real print:%d)\r\n\r\n", btree_node_num, num_count);
+#endif
+	}
+
+	//publicæ¥å£
+	template<typename pram>
+	void Bplustree<pram>::show(Bplustree::node_pointer node, ssize_t flag) {
+		if (flag == 0) {
+
+			btree_level_traversal(node);
+		}
+		else
+			btree_inorder_traversal(node);
+	}
+
+	template<typename pram>
+	void Bplustree<pram>::linearshow() {
+		//çº¿æ€§å±•å¼€
+		node_pointer left = root();
+		while (!left->_node.is_leaf) {
+			left = left->_node.ptr[0];
+		}
+		while (left!=nullptr) {
+			printf("[");
+			ssize_t len = left->_node.num;
+			for (int i = 0; i < len; ++i) {
+				printf("%d,", left->_node.key[i]);//æ‰“å°intæµ‹è¯•
+			}
+			printf("];");
+			left = left->_node.next;
+		}
+		printf("\r\n");		
+	}
+
+	template<typename pram>
+	void Bplustree<pram>::Save(Bplustree::node_pointer node) {
+		//ç­‰å¾…æ‰©å±•
+		//é€šè¿‡å†…å­˜æ˜ å°„æŠŠæ•°æ®å†™å…¥ï¼Ÿ
+
+	}
+
+	//æ„é€ å‡½æ•°ï¼Œè½¬è°ƒæ¥å£å³å¯
+	template<typename pram>
+	Bplustree<pram>::Bplustree() {
+		btree_create();
+	}
+
+	//
+	template<typename pram>
+	Bplustree<pram>::~Bplustree() {
+		//Tree::~Tree();
+	}
+
+
+
+
+
+
+
+
 }/////namespace BTree
 
 
