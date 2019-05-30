@@ -12,6 +12,9 @@
 #include<string>
 #include<iterator>
 
+
+//int IsFilterLink(const string &);
+
 //brief:默认初始化
 Page::Page(){
 	//初始化需要分析装填的信息
@@ -95,6 +98,18 @@ Page::Page(const string &strUrl, const string &strLocation, const char *header, 
 //	//ToDo;;
 //}
 
+//brief:设置特殊信息
+//becare:m_sUrl采用http协议
+void Page::SetPage(const string &strUrl, const string &strLocation, const char *header, const char *body, int nLenBody) {
+	m_sUrl = strUrl;
+	m_sLocation = strLocation;
+	m_sHeader = header;
+	m_nLenHeader = strlen(header);
+	m_sContent.assign(body, nLenBody);
+	m_nLenContent = nLenBody;
+
+}
+
 
 
 //一下为响应头各个部分的解析函数实现
@@ -118,7 +133,7 @@ void Page::GetStatusCode(string &header) {
 	//	++pos_http;
 	//}
 	//定位到数字前面的空格，排除意外数据
-	pos_http += sizeof "http/" - 1;     //strlen("http/");编译时确定，快一点
+	pos_http += sizeof "http/" - 1;     
 	while (header[pos_http] != ' ') pos_http++;
 
 	int ret=sscanf(header.c_str() + pos_http, "%i", &m_nStatusCode);
@@ -157,6 +172,7 @@ void Page::GetLocation(string &header) {
 	auto pos_location_start = StrFun::FindCase(header, "location:");
 	if (pos_location_start != string::npos) {
 		pos_location_start += sizeof "location:" - 1;
+	    while (header[pos_location_start] == ' ') pos_location_start++;
 		auto pos_location_end = header.find_first_of("\r\n", pos_location_start);
 		if (pos_location_end != string::npos) {
 			//find it
@@ -166,7 +182,6 @@ void Page::GetLocation(string &header) {
 }
 
 //brief:解析字符集
-//???????
 void Page::GetCharset(string &header) {
 	//形如： Content-Type: application/json; charset=utf-8\r\n
 	//注意这里的分隔符，多一点，包括 ",;> 
@@ -174,6 +189,7 @@ void Page::GetCharset(string &header) {
 	auto pos_charset_start = StrFun::FindCase(header, "charset=");
 	if (pos_charset_start != string::npos) {
 		pos_charset_start += sizeof "charset=" - 1;
+	    while (header[pos_charset_start] == ' ') pos_charset_start++;
 		auto pos_charset_end = header.find_first_of(delims, pos_charset_start);
 		if (pos_charset_end != string::npos) {
 			m_sCharset = header.substr(pos_charset_start, pos_charset_end - pos_charset_start);
@@ -187,6 +203,7 @@ void Page::GetContentEncoding(string &header) {
 	auto pos_contentencoding_start = StrFun::FindCase(header, "content-encoding:");
 	if (pos_contentencoding_start != string::npos) {
 		pos_contentencoding_start += sizeof "content_encding:" - 1;
+	    while (header[pos_contentencoding_start] == ' ') pos_contentencoding_start++;
 		auto pos_contentencoding_end = header.find_first_of("\r\n", pos_contentencoding_start);
 		if (pos_contentencoding_end != string::npos) {
 			m_sContentEncoding = header.substr(pos_contentencoding_start, pos_contentencoding_end - pos_contentencoding_start);
@@ -200,10 +217,14 @@ void Page::GetConnectionState(string &header) {
 	auto pos_connectionstate_start = StrFun::FindCase(header, "connection:");
 	if (pos_connectionstate_start != string::npos) {
 		pos_connectionstate_start += sizeof "connection:" - 1;
+	    while (header[pos_connectionstate_start] == ' ') pos_connectionstate_start++;
 		auto pos_connectionstate_end = header.find_first_of("\r\n",pos_connectionstate_start);
 		if (pos_connectionstate_end != string::npos) {
 			string state_token = header.substr(pos_connectionstate_start, pos_connectionstate_end - pos_connectionstate_start);
-			if (strcasecmp(state_token.c_str(), "keep-alive") == 0) {
+			//if (strcasecmp(state_token.c_str(), "keep-alive") == 0) {
+			//	m_bConnectionState = true;//error
+			//}
+			if(string::npos!=StrFun::FindCase(state_token,"keep-alive")){
 				m_bConnectionState = true;
 			}
 		}
@@ -216,6 +237,7 @@ void Page::GetContentType(string &header) {
 	auto pos_contenttype_start = StrFun::FindCase(header, "content-type:");
 	if (pos_contenttype_start != string::npos) {
 		pos_contenttype_start += sizeof "content-type:" - 1;
+	    while (header[pos_contenttype_start] == ' ') pos_contenttype_start++;
 		auto pos_contenttype_end = header.find_first_of(";\r\n", pos_contenttype_start);
 		if (pos_contenttype_end != string::npos) {
 			m_sContentType = header.substr(pos_contenttype_start, pos_contenttype_end - pos_contenttype_start);
@@ -229,6 +251,7 @@ void Page::GetTransferEncoding(string &header) {
 	auto pos_transfreencoding_start = StrFun::FindCase(header, "transfer-encoding:");
 	if (pos_transfreencoding_start != string::npos) {
 		pos_transfreencoding_start += sizeof "transfer-encoding:" - 1;
+	    while (header[pos_transfreencoding_start] == ' ')  pos_transfreencoding_start++;
 		auto pos_transferencoding_end = header.find_first_of(";\r\n", pos_transfreencoding_start);
 		if (pos_transferencoding_end != string::npos) {
 			m_sTransferEncoding = header.substr(pos_transfreencoding_start, pos_transferencoding_end - pos_transfreencoding_start);
@@ -267,14 +290,14 @@ bool _find_two_word(const string &target, const string &first, const string &sec
 //去除一些无意义的连接，，spam link
 //这个规则需要根据需求进行扩充和更改
 //当下规则：
-//1.重复出现出现?,&,"//","http","misc","ipb"以及同时出现-+
+//1.重复出现出现?,&,"//","http","misc","ipb","https"以及同时出现-+
 //2.出现一些脚本，或者需要登录等额外信息的标志
-int IsFilterLink(string &strlink) {
+int IsFilterLink(const string &strlink) {
 	if (strlink.empty() || strlink.size() > kURL_LEN) {
 		return 1;
 	}
 	
-	const string filter_word_list[] = { "?","&","//","http","misc","ipb" };
+	const string filter_word_list[] = { "?","&","//","http","misc","ipb","https" };
 	for (string filter_word : filter_word_list) {
 		if (_find_two_word(strlink, filter_word, filter_word)) {
 			return 1;
@@ -311,6 +334,11 @@ int IsFilterLink(string &strlink) {
 	return 0;
 }
 
+//brief:转调
+int Page::IsFilter(const string &strlink) const{
+	return IsFilterLink(strlink);
+}
+
 //brief:GetContentLinkInfo等的辅助函数，
 void _find_and_record_tag(string &strtarget, const string &tag, string &strrecord) {
 	auto pos_word_start = StrFun::FindCase(strtarget, tag);
@@ -320,7 +348,8 @@ void _find_and_record_tag(string &strtarget, const string &tag, string &strrecor
 		auto pos_word_end = strtarget.find_first_of('<', pos_word_start+1);
 		if (string::npos != pos_word_end) {
 			//strrecord += strtarget.substr(pos_word_start, pos_word_end - pos_word_start + 1);
-			strrecord += strtarget.substr(pos_word_start, pos_word_end - pos_word_start);
+			string tmp = strtarget.substr(pos_word_start, pos_word_end - pos_word_start);
+			strrecord += tmp;
 		}
 		else {
 			//err_msg("Unexcepted end of response body!!");
@@ -341,6 +370,7 @@ bool Page::GetContentLinkInfo() {
 	if (m_sContent.empty()) {
 		return false;
 	}
+
 	m_sContentLinkInfo = m_sContent;
 	string &alias = m_sContentLinkInfo;
 
@@ -535,11 +565,15 @@ bool Page::GetLinkInfo4History() {
 
 //brief:辅助函数，网页补全功能
 //针对相对路径的link,结合url已经分析出来的域名，端口等信息补全网页link
+//becare:协议都是用http,只要保证m_sUrl是http的，，需要外部保证！
 static int WebComplete(string &str_web,const Url &url_parser,const string &m_sUrl) {
 	//url_parser
 	if (str_web[0] == '/') {
 		//形如  /index.html
 		//相对路径,使用特殊端口的时候需要带上端口号
+		//if (url_parser.m_eScheme == kSchemeHttps) {
+		//	;
+		//}
 		str_web = (url_parser.m_nPort != kDEFAULT_HTTP_PORT) ? "http://" + url_parser.m_sHost + ":" + std::to_string(url_parser.m_nPort) + str_web
 			:"http://" + url_parser.m_sHost + str_web ;
 	}
@@ -561,11 +595,47 @@ static int WebComplete(string &str_web,const Url &url_parser,const string &m_sUr
 	return 0;
 }
 
-//brief:对URL格式化
-int NormalizeUrl(string &str_url) {
-	//WebComplete(str_url);
+//brief:辅助函数，完成网页简化
+//becare:把所有的https协议替换为http,否则涉及到ssl握手
+static int _NormalizeUrl(string &str_url){
+	StrFun::ReplaceStr(str_url, "https", "http");
+	if (StrFun::FindCase(str_url, "http://") == string::npos) {
+		return -1;
+	}
+	auto idx = str_url.rfind('/');
+	if (idx < 8) {
+		str_url = str_url + "/";	//以标准目录结尾
+		return 0;
+	}
+
+	while ((idx = str_url.find("/./")) != string::npos) {
+		if (idx != string::npos) str_url.erase(idx, 2);
+	}
+
+	while ((idx = str_url.find("/../")) != string::npos) {
+		string strPre, strSuf;
+
+		strPre = str_url.substr(0, idx);
+
+		if (str_url.length() > idx + 4)
+			strSuf = str_url.substr(idx + 4);
+
+		idx = strPre.rfind("/");
+		if (idx != string::npos)
+			strPre = strPre.substr(0, idx + 1);
+		if (strPre.length() < 10) return false;
+
+		str_url = strPre + strSuf;
+	}
+
+	if (StrFun::FindCase(str_url, "http://") != 0) return false;
 
 	return 0;
+}
+//brief:对URL简化
+int Page::NormalizeUrl(string &str_url) {
+	//WebComplete(str_url);
+	return _NormalizeUrl(str_url);
 	
 }
 
@@ -630,6 +700,7 @@ static int _extract_info(char *buf, T ref[], int &ref_num, bool type_flag=true) 
 
 
 //brief:辅助函数，用于建立map结构
+//becare:
 static int _build_map(const Url &url_parser,RefLink4SE ref[],const int &ref_num, const string &m_sUrl,map<string,string> &map_ref) {
 	if (!ref) {
 		return -1;
@@ -649,16 +720,16 @@ static int _build_map(const Url &url_parser,RefLink4SE ref[],const int &ref_num,
 		if (pos_http != 0) {
 			//此时网页是相对路径
 			if (WebComplete(strlink, url_parser,m_sUrl) != 0) {
-				err_msg("BuildMap failed when dealing with WebComplete:(%s)", strlink);
+				err_msg("BuildMap failed when dealing with WebComplete:(%s)", strlink.c_str());
 				continue;
 			}
 		}
-		if (NormalizeUrl(strlink) != 0) {
-			log_msg("Failed to NormalizeUrl:(%s)", strlink);
+		if (_NormalizeUrl(strlink) != 0) {
+			log_msg("Failed to _NormalizeUrl:(%s)", strlink.c_str());
 			continue;
 		}
 		if (IsFilterLink(strlink)) {
-			log_msg("Bad Link shouled be dopped:(%s)", strlink);
+			log_msg("Bad Link shouled be dopped:(%s)", strlink.c_str());
 			continue;
 		}
 #ifdef DEBUG_2_
@@ -687,10 +758,10 @@ bool Page::FindRefLink4SE() {
 	}
 
 	const char *buffer = m_sLinkInfo4SE.c_str();
-	//
-	static char buf[kURL_REFERENCE_LEN];//常驻内存//注意这块空间是被这个类共享的//因此不适合并发计算
-	//
+	//弃用
+	//static char buf[kURL_REFERENCE_LEN];//常驻内存//注意这块空间是被这个类共享的//因此不适合并发计算
 	//memset(buf, 0, kURL_REFERENCE_LEN);
+	char buf[kURL_REFERENCE_LEN];
 
 	//int len_buffer = strlen(buffer);//线性运算
 	int len_buffer = m_sLinkInfo4SE.size();
@@ -712,7 +783,7 @@ bool Page::FindRefLink4SE() {
 	Url url_parser;
 	//解析URL，使用原始地址？
 	if (url_parser.ParseUrl(m_sUrl) == false) {
-		err_msg("[%s]url_parser failed,which url is(%s)", __FUNCTION__, m_sUrl);
+		err_msg("[%s]url_parser failed,which url is(%s)", __FUNCTION__, m_sUrl.c_str());
 		return false;
 	}
 	//构建map记录link
@@ -743,16 +814,16 @@ static int _build_vec(const Url &url_parser,RefLink4History ref[],const int &ref
 		if (pos_http != 0) {
 			//此时网页是相对路径
 			if (WebComplete(strlink, url_parser,m_sUrl) != 0) {
-				err_msg("BuildMap failed when dealing with WebComplete:(%s)", strlink);
+				err_msg("BuildMap failed when dealing with WebComplete:(%s)", strlink.c_str());
 				continue;
 			}
 		}
-		if (NormalizeUrl(strlink) != 0) {
-			log_msg("Failed to NormalizeUrl:(%s)", strlink);
+		if (_NormalizeUrl(strlink) != 0) {
+			log_msg("Failed to _NormalizeUrl:(%s)", strlink.c_str());
 			continue;
 		}
 		if (IsFilterLink(strlink)) {
-			log_msg("Bad Link shouled be dopped:(%s)", strlink);
+			log_msg("Bad Link shouled be dopped:(%s)", strlink.c_str());
 			continue;
 		}
 #ifdef DEBUG_2_
@@ -795,7 +866,7 @@ bool Page::FindRefLink4History() {
 	Url url_parser;
 	//解析URL，使用原始地址？
 	if (url_parser.ParseUrl(m_sUrl) == false) {
-		err_msg("[%s]url_parser failed,which url is(%s)", __FUNCTION__, m_sUrl);
+		err_msg("[%s]url_parser failed,which url is(%s)", __FUNCTION__, m_sUrl.c_str());
 		return false;
 	}
 	//构建map记录link

@@ -17,13 +17,16 @@ const int16_t kURL_LEN=256;
 const int16_t kHOST_LEN=256;
 const int16_t kPROTOCOL_LEN=10;
 const int16_t kREQUEST_LEN=256;
+const int16_t kMIN_HOST_LEN = 6;
+
 const int16_t kDEFAULT_HTTP_PORT=80;
 const int16_t kDEFAULT_FTP_PORT=21;
-const int16_t kMIN_HOST_LEN = 6;
+const int16_t kDEFAULT_HTTPS_PORT = 443;
 
 enum url_scheme{
 	kSchemeHttp,
 	kSchemeFtp,
+	kSchemeHttps,//追加
 	kSchemeInvalid
 };
 

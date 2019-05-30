@@ -13,8 +13,10 @@
 #include<cstring>
 #include<mutex>
 #include<map>
+#include<unordered_map>
+#include<unordered_set>
 #include<vector>
-#include<set>
+//#include<set>
 
 #include<sys/socket.h>
 #include<netdb.h>
@@ -23,19 +25,25 @@
 //#ToDo
 //#include"http.h"
 
-//注意，mutex的移植问题
 
 
-#define ERROR_OUT(x) printf("[error][%s-%d-%s]"#x":%s",__FILE__,__LINE__,__FUNCTION__,x);
-#define ENSURE(x) if(x){}else{ERROR_OUT(x);exit(EXIT_FAILURE);}
-#define DEBUG_L
+//#define ERROR_OUT(x) printf("[error][%s-%d-%s]"#x":%s",__FILE__,__LINE__,__FUNCTION__,x);
+//#define ENSURE(x) if(x){}else{ERROR_OUT(x);exit(EXIT_FAILURE);}
 
-std::map<string,string> mapCacheHostLookup;//扩展DNS缓存
-std::mutex mutexCacheHost;//
+//由url负责维护这个缓存
+std::unordered_map<string,string> mapCacheHostLookup;//扩展DNS缓存
+std::mutex mutexCacheHost;
+std::mutex mutexGetHostbyName;
+
+//Becare:mapIpBlock需要遍历访问，不适合采用hashtable
 extern std::map<uint32_t,uint32_t> mapIpBlock;//允许访问IP段,注意这里存储的是网络号和主机掩码
-extern std::set<string> setVisitedUrlMd5;//记录已经访问的URL的MD5  
+
+extern std::unordered_set<string> setVisitedUrlMd5;//记录已经访问的URL的MD5  
 extern std::vector<string> vsUnreachHost;//记录不可访问的域名
-using valTypeCHL=std::map<string,string>::value_type;
+extern std::mutex mutexVisitedUrlMd5;
+
+
+using valTypeCHL=std::unordered_map<string,string>::value_type;
 
 static const char *kHome_Host[] = {//国内域名后缀
 	"cn","com","net","org","info","biz","tv","cc","hk","tw"
@@ -54,6 +62,7 @@ struct scheme_data{
 static scheme_data known_scheme[]={
     {"http://",kDEFAULT_HTTP_PORT,1},
 	{"ftp://",kDEFAULT_FTP_PORT,1},
+	{"https://",kDEFAULT_HTTPS_PORT,1},
 	{nullptr,-1,0}                       //作为终结判断的标志，也作为非法标志
 };
 
@@ -75,6 +84,8 @@ void Url::ParseScheme(const char* url){
 }
 
 //提取url中的信息
+//becare:仅仅针对http,https协议处理
+//       但要特别注意https协议的处理
 bool Url::ParseUrl(const string& strUrl){
     char protocol[kPROTOCOL_LEN];
 	char host[kHOST_LEN];
@@ -87,7 +98,7 @@ bool Url::ParseUrl(const string& strUrl){
 
 	//提取scheme
 	this->ParseScheme(strUrl.c_str());
-	if(this->m_eScheme!=kSchemeHttp){
+	if(this->m_eScheme!=kSchemeHttp && this->m_eScheme!=kSchemeHttps){
 		return false;
 	}
 
@@ -128,7 +139,7 @@ void Url::ParseUrl(const char *url, char *protocol,int protocol_len, char *host,
 	}
 	else{
 		//*protocol="HTTP";
-		memcpy((void*)protocol, "HTTP", protocol_len);
+		memcpy(protocol, "HTTP", protocol_len);
 		ptr=work;
 	}
 
@@ -176,16 +187,16 @@ Url::~Url(){
 	//ToDo
 }
 
-
 //结合DNS缓存计算域名的IP,返回的是一个点分十进制的IP的char*
 //注意内存分配在动态空间，需要释放
+//todo:改用getaddrinfo实现
 char* Url::GetIpByHost(const char * host){
 	//针对空指针或者非法host
 	if(!host || !IsValidHost(host)){
 		return nullptr;
 	}
 
-	in_addr inaddr;
+	struct in_addr inaddr;
 	char *result=nullptr;
 	int len=0;
 
@@ -212,16 +223,17 @@ char* Url::GetIpByHost(const char * host){
 		//host不是合法的点分十进制格式
 		//首先从扩展DNS中查找
 		//
+		std::unique_lock<std::mutex> cache_lock(mutexCacheHost);
 		auto iter=mapCacheHostLookup.find(host);
 		if(iter!=mapCacheHostLookup.end()){
 			//已经缓存了
-			const char *strHostIp;
-			strHostIp=iter->second.c_str();
-
+			string tmpstr=iter->second;
+			cache_lock.unlock();
+			const char *strHostIp=tmpstr.c_str();
+			len=tmpstr.size();
 			//inaddr=(uint32_t)inet_addr(strHostIp);
 			//if(INADDR_NONE!=inaddr)
 			if(0!=inet_aton(strHostIp,&inaddr)){
-				len=strlen(strHostIp);
 #ifdef DEBUG_L
 				std::unique_lock<std::mutex> tmp_lock(mutexMemory);
 #endif
@@ -234,17 +246,21 @@ char* Url::GetIpByHost(const char * host){
 				return result;
 			}
 		}
+		cache_lock.unlock();
 	}
 
 	//如果运行到这里说明扩展缓存未命中
 	//需要调用gethostbyname
     hostent *hp;
-	hp=gethostbyname(host);
+	std::unique_lock<std::mutex> lock(mutexGetHostbyName);
+	hp=gethostbyname(host);//注意这里使用的是一块static内存
 	if(hp==nullptr){
 		return nullptr;
 	}
 	//需要缓存这个host
 	memcpy(&inaddr,*(hp->h_addr_list),hp->h_length);
+	lock.unlock();
+
 	char ipv4_buf[INET_ADDRSTRLEN];//AF_INET ipv4点分十进制长度
 	if(nullptr==inet_ntop(AF_INET,(void*)&inaddr,ipv4_buf,sizeof ipv4_buf)){
 		//出错
@@ -307,7 +323,8 @@ bool Url::IsVisitedUrl(const char *url){
 	Md5 check_md5;
 	check_md5.GenerateMd5((unsigned char*)url,strlen(url));
 	string strToken=check_md5.ToString();
-		return  (setVisitedUrlMd5.find(strToken)!=setVisitedUrlMd5.end())?true:false;
+	std::unique_lock<std::mutex> lock_urlmd5(mutexVisitedUrlMd5);
+	return  (setVisitedUrlMd5.find(strToken)!=setVisitedUrlMd5.end())?true:false;
 }
 
 

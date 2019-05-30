@@ -1,8 +1,81 @@
 /*************************************************************************
 	> File Name: http.h
 	> Author: Dream9
-	> Brief: 
-	> Created Time: 2019å¹´05æœˆ03æ—¥ æ˜ŸæœŸäº” 21æ—¶08åˆ†56ç§’
- ************************************************************************/
+	> Brief:
+	> Created Time: 2019Äê05ÔÂ03ÈÕ ĞÇÆÚÎå 21Ê±08·Ö56Ãë
+*************************************************************************/
 
+#ifndef _UTILS_HTTP_H_
+#define _UTILS_HTTP_H_
+
+
+#include"strfun.h"
+#include"url.h"
+#include"errlog.h"
+#include"rio.h"
+#include"page.h"
+//#include"Config.h"///////
+
+#include<cstdlib>
+#include<cstdio>
+#include<string>
+#include<map>
+#include<string>
+#include<mutex>
+
+#include<errno.h>
+#include<netdb.h>
+#include<unistd.h>
+#include<netinet/in.h>
+#include<sys/types.h>
+#include<sys/socket.h>
+#include<sys/time.h>
+#include<arpa/inet.h>
+#include<fcntl.h>
+
+using std::string;
+
+//´íÎóĞÅÏ¢
+const int kHTTP_ERROR = -1;//-1:³ö´í
+const int kHTTP_OUTOFRANGE = -2;//-2:³¬³öIPBlockËÑË÷·¶Î§
+const int kHTTP_INVALIDHOST = -3;//-3:ÎŞĞ§ÓòÃû
+const int kHTTP_IMG = -4;//-4:ÍøÒ³Îªimg/xxxÀàĞÍ
+const int kHTTP_LOCATION = -300;//-300:ÖØ¶¨Ïò
+const int kHTTP_QUIT = -5;//Ã»ÓĞÖÆ¶¨fileBuf,Ö±½Ó¶ªÆú½ÓÊÕµ½µÄÊı¾İ
+
+
+class Http {
+private:
+	string m_sUrl;
+	int *m_psock;
+
+private:
+    //·â×°ÇëÇó
+	int _WrapHeader(const string &, Url &,void **);
+	
+	//¶ÁÈ¡ÏìÓ¦
+	int ReadHeader(int, char *);
+	int ReadBody(int, int, char **);
+	int ReadBody_chunked(int, char **);
+
+	//´´½¨»ùÓÚTCPµÄÁ¬½Ó
+	int CreateSocket(const char *, int);
+	//·Ç×èÈûµÄÁ¬½Ó
+	int NonbConnect(int, sockaddr *, int);
+
+	//reallocµÄ·â×°
+	int CheckBufSize(char **, int *, int);
+	int CheckBufSize(char **, char **, char **, int);
+
+public:
+	Http();
+	virtual ~Http();
+
+	//ºËĞÄÒµÎñ
+	int Fetch(const string &, char **, char **, char **, int *);
+};
+
+extern std::mutex mutexMemory;
+
+#endif /*_UTILS_HTTP_H_*/
 

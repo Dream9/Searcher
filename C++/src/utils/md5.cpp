@@ -321,7 +321,7 @@ Md5& Md5::operator+=(const Md5 &md5_add){
 
 //
 bool Md5::operator==(const Md5 &md5_add)const{
-	return memcpy((void*)m_data,(void*)md5_add.m_data,sizeof m_data)==0;
+	return memcmp(m_data,md5_add.m_data,16)==0;
 }
 
 //

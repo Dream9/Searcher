@@ -9,6 +9,8 @@
 
 #include"url.h"
 
+#include<cstdlib>
+#include<cstdio>
 #include<string>
 #include<map>
 #include<vector>
@@ -116,15 +118,16 @@ private:
 public:
 	Page();
 	Page(const string &,const string &,const char *,const char *,int);
+	void SetPage(const string &, const string &, const char *, const char *, int);
 
 	void ParseHeaderInfo(string &);//外部接口，调用需要的解析响应头的函数
 	bool ParseHyperLinks();//外部接口，解析响应体，也就是网页
-	//bool NormalizeUrl(string &);
-	//bool IsFilterLink(string &);
+	int NormalizeUrl(string &);
+	int IsFilter(const string &) const;
 };
 
 int NormalizeUrl(string &);
-int IsFilterLink(string &);
+int IsFilterLink(const string &);
 
 
 #endif

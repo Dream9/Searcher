@@ -29,7 +29,7 @@ private:
 	void md5_finish(Md5_Context *,uint8_t [16]);
 
 public:
-    void GenerateMd5(unsigned char *,int);
+    void GenerateMd5(uint8_t *,int);
 
 	Md5();
 	Md5(const char *);

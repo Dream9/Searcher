@@ -14,12 +14,14 @@
 
 #include<stdarg.h>
 #include<errno.h>
-#include<syslog.h>
 
-//最大信息长度
+
 #define kMAXLINE 2048
-//主程序负责定义，为0时表示采用syslog，否则输出至stderr
-extern const int  log_to_stderr;
+
+const int kLOG_DEBUG = 1;
+const int kLOG_INFO = 2;
+const int kLOG_WARN = 3;
+const int kLOG_FATAL = 4;
 
 //分为四类错误输出
 //最终调用err_doit实现
@@ -40,8 +42,10 @@ void err_msg(const char *fmt, ...);
 //普通log
 void log_msg(const char *fmt, ...);
 
-//调试用
-void log_debug(const char *fmt, ...);
+//多线程下的日志管理
+//级别，时间戳，线程id，文件名，行号，信息
+//todo:
+//extern void loggger(int level, int timestamp, const string &threadid, const string &file, int line, const string &message);
 
 #endif
 
