@@ -1,12 +1,20 @@
 all:test
 
 TOPDIR=$(shell pwd)
+
 UTILSDIR=../utils
 OBJS:=$(wildcard ${UTILSDIR}/*.o)
+
 COLLECTDIR=../collector
 OBJS+=$(wildcard ${COLLECTDIR}/*.o)
+
+INDEXDIR=../index
+OBJS_INDEX=$(wildcard $(INDEXDIR)/*.o)
+OBJS_INDEX+=../utils/errlog.o ../utils/md5.o ../utils/strfun.o
+
+
 CC=g++ 
-FLAG=-std=c++11 -Wall -I$(UTILSDIR) -I$(COLLECTDIR)
+FLAG=-std=c++11 -Wall -I$(UTILSDIR) -I$(COLLECTDIR) -I$(INDEXDIR)
 DEBUG=-O0 -ggdb
 LINKFLAG=-lz -lpthread
 
@@ -24,6 +32,14 @@ page_test:page_test.cpp
 	
 crawl_test: crawl_test.cpp $(OBJS)
 	$(CC) $(FLAG) -o crawl_test.out crawl_test.cpp $(OBJS) $(DEBUG) $(LINKFLAG) 
+
+word_segement_test: word_segement_test.cpp
+	$(CC) $(FLAG)  -I$(INDEXDIR)/include -o word_segement_test.out ../index/dictinary.o ../index/word_segement.o ../utils/errlog.o word_segement_test.cpp $(DEBUG)
+	
+
+index_test:index_test.cpp
+	$(CC) $(FLAG) -I$(INDEXDIR)/include -o index_test.out $< $(OBJS_INDEX) $(DEBUG)
+
 
 .PHONY:clean
 
