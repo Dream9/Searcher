@@ -149,6 +149,9 @@ string WordSegment::Segment_need_preprose(Dictinary &dict, const string & strDoc
 			}
 			cur = (uint8_t)strDoc[iter];
 		}
+		if(!str_out.empty() && str_out.back() != kSEPARATE_CHAR){
+			str_out += kSEPARATE_CHAR;//处理一下特殊情况
+		}
 
 		//此时的字符应该为gb2312中的特有字符
 		//标点符号没有任何意义，全部跳过

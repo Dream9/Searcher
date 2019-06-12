@@ -172,7 +172,7 @@ int Index::CreateInverseIndex(const char *segment_file, const char *inverse_inde
 		string strCurrentWord(strLine.c_str());
 		if (strCurrentWord == strLastWord) {
 			strDocIds += kSEPARATE_CHAR_INVERSE_FILE;
-			strDocIds += &strLine[pos_sep];
+			strDocIds += &strLine[pos_sep + 1];
 		}
 		else {
 			//更新LastWord等信息
@@ -181,7 +181,7 @@ int Index::CreateInverseIndex(const char *segment_file, const char *inverse_inde
 					<< (strDocIds.empty() ? &strLine[pos_sep] : strDocIds) << '\n';
 			}
 			strLastWord.swap(strCurrentWord);
-			strDocIds = &strLine[pos_sep];
+			strDocIds = &strLine[pos_sep + 1];
 		}
 	}
 	//处理最后一个词
