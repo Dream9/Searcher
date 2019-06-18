@@ -12,7 +12,8 @@ static void _find_next_tag(const char**, const char*);
 
 //brief:提炼网页信息
 //todo:标签信息记录下来，用于评分
-int Document::Refine(const char *doc, string &charset) {
+//int Document::Refine(const char *doc, string &charset) {
+int Document::Refine(const char *doc) {
 	m_sContent_Refined.clear();
 
 	const string kTAG[] = {"</script","</style"};
@@ -44,48 +45,48 @@ int Document::Refine(const char *doc, string &charset) {
 			continue;
 		}
 	}
-
-	//编码转化
-	if (charset.empty()) {
-		//先从网页的meta中寻找
-		_find_meta_charset(doc, charset);
-		//
-		if (charset.empty()) {
-			if (0 == CharsetTransfer::Is_valid_utf8(&m_sContent_Refined[0])) {
-				charset = "utf-8";
-			}
-			else if (0 == CharsetTransfer::Is_vaild_gbk(&m_sContent_Refined[0])) {
-				charset = "gbk";
-			}
-			else if(0 == CharsetTransfer::Is_vaild_big5(&m_sContent_Refined[0])){
-				charset="big5";
-				//todo:需要转化到简体中文
-			}
-			else {
-				err_msg("%s:unsolved charset", __FUNCTION__);
-				return -1;
-			}
-		}
-	}
-	if (string::npos != StrFun::FindCase(charset, "gb")) {
-		//不须转换
-		return 0;
-	}
-	size_t max_len = m_sContent_Refined.size() << 1;
-	size_t len_source_info = m_sContent_Refined.size();
-	char *buf = (char *)malloc(max_len);
-	if (0 != CharsetTransfer::Convert(charset.c_str(), "gbk", &m_sContent_Refined[0], len_source_info, buf, max_len)) {
-		err_msg("%s:Convert() error",__FUNCTION__);
-		free(buf);
-		buf = nullptr;
-		return -1;
-	}
-	if (len_source_info > 0) {
-		err_msg("Infomation may lost");
-	}
-	m_sContent_Refined = buf;
-	free(buf);
-	buf = nullptr;
+//弃用
+//	//编码转化
+//	if (charset.empty()) {
+//		//先从网页的meta中寻找
+//		_find_meta_charset(doc, charset);
+//		//
+//		if (charset.empty()) {
+//			if (0 == CharsetTransfer::Is_valid_utf8(&m_sContent_Refined[0])) {
+//				charset = "utf-8";
+//			}
+//			else if (0 == CharsetTransfer::Is_vaild_gbk(&m_sContent_Refined[0])) {
+//				charset = "gbk";
+//			}
+//			else if(0 == CharsetTransfer::Is_vaild_big5(&m_sContent_Refined[0])){
+//				charset="big5";
+//				//todo:需要转化到简体中文
+//			}
+//			else {
+//				err_msg("%s:unsolved charset", __FUNCTION__);
+//				return -1;
+//			}
+//		}
+//	}
+//	if (string::npos != StrFun::FindCase(charset, "gb")) {
+//		//不须转换
+//		return 0;
+//	}
+//	size_t max_len = m_sContent_Refined.size() << 1;
+//	size_t len_source_info = m_sContent_Refined.size();
+//	char *buf = (char *)malloc(max_len);
+//	if (0 != CharsetTransfer::Convert(charset.c_str(), "gbk", &m_sContent_Refined[0], len_source_info, buf, max_len)) {
+//		err_msg("%s:Convert() error",__FUNCTION__);
+//		free(buf);
+//		buf = nullptr;
+//		return -1;
+//	}
+//	if (len_source_info > 0) {
+//		err_msg("Infomation may lost");
+//	}
+//	m_sContent_Refined = buf;
+//	free(buf);
+//	buf = nullptr;
 
 	return 0;
 }

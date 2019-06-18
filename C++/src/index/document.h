@@ -45,7 +45,8 @@ public:
 		m_sContent_Refined = "";
 		m_nFile=-1;
 	}
-	int Refine(const char *, string &);
+	//int Refine(const char *, string &);
+	int Refine(const char *);
 
 };
 

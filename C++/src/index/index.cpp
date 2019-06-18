@@ -12,7 +12,7 @@ extern const char kSEPARATE_CHAR_INVERSE_FILE;
 
 static const string kHTML_SPACE = "&nbsp;";
 static int _deal_with_system_status(int);
-static int _find_charset_from_header(char *, int, string &);
+//static int _find_charset_from_header(char *, int, string &);
 
 #define _ENSURE_SUCCESS(x,y) if(!x){err_msg("%s error:open %s failed",y);}
 //brief:FormatFile文件的分词
@@ -86,23 +86,24 @@ int Index::DocumentSegment(const char *file_path,const char *doc_index_file,
 		}
 		ptrBuf += 2;
 		//从头部中提取charset信息
-		char *header = ptrBuf;
+		//char *header = ptrBuf;
 		if (!(ptrBuf = strstr(ptrBuf, "\n\n"))) {
 			err_msg("%s:bad file format:%s", __FUNCTION__, file_path);
 			free(buf);
 			buf = nullptr;
 			return -3;
 		}
-		string charset;
-		if (0 != _find_charset_from_header(header, ptrBuf - header, charset)) {
-			err_msg("%s:bad file format:%s", __FUNCTION__, file_path);
-			free(buf);
-			buf = nullptr;
-			return -3;
-		}
+		//string charset;
+		//if (0 != _find_charset_from_header(header, ptrBuf - header, charset)) {
+		//	err_msg("%s:bad file format:%s", __FUNCTION__, file_path);
+		//	free(buf);
+		//	buf = nullptr;
+		//	return -3;
+		//}
 		//文档简化以及格式调整
 		ptrBuf += 2;
-		if (0 != doc_parser.Refine(ptrBuf,charset)) {
+		//if (0 != doc_parser.Refine(ptrBuf,charset)) {
+		if (0 != doc_parser.Refine(ptrBuf)) {
 			err_msg("Refine() failed");
 			free(buf);
 			buf = nullptr;
@@ -110,7 +111,7 @@ int Index::DocumentSegment(const char *file_path,const char *doc_index_file,
 		}
 		free(buf);
 		buf = nullptr;
-		log_msg("charset is %s.",charset.c_str());
+		//log_msg("charset is %s.",charset.c_str());
 
 		StrFun::ReplaceStr(doc_parser.m_sContent_Refined, kHTML_SPACE, " ");
 		WordSegment word_parser;
@@ -136,6 +137,8 @@ int Index::CreateForwardIndex(const char *raw_data_file, const char *url_index_f
 }
 
 //brief:产生反向索引文件
+//
+//2016/6/14：格式调整为 word+分隔符+Count文档数+分隔符+docid+分隔符+该docid中该word重复次数+.....
 int Index::CreateInverseIndex(const char *segment_file, const char *inverse_index_file) {
 	//对切词文件进行数据预处理
 	//期待格式为  word+分隔符+docid+\n........并且已经完成排序
@@ -160,6 +163,9 @@ int Index::CreateInverseIndex(const char *segment_file, const char *inverse_inde
 	string strLine;
 	string strDocIds;
 	string strLastWord;
+	string strLastDocId;
+	int count_id = 0;
+	int count_doc_total = 0;
 	while (getline(ifsTmpSegmentFile, strLine)) {
 		if(strLine.empty() || strLine[0]=='\n' || strLine[0]=='\0'){
 			continue;
@@ -171,21 +177,42 @@ int Index::CreateInverseIndex(const char *segment_file, const char *inverse_inde
 		strLine[pos_sep] = '\0';
 		string strCurrentWord(strLine.c_str());
 		if (strCurrentWord == strLastWord) {
-			strDocIds += kSEPARATE_CHAR_INVERSE_FILE;
-			strDocIds += &strLine[pos_sep + 1];
+			//统计docid重复次数
+			if (strLastDocId == &strLine[pos_sep + 1]) {
+				++count_id;
+				//++count_doc_total;相同的文档算一个
+			}
+			else{
+				strDocIds += kSEPARATE_CHAR_INVERSE_FILE + strLastDocId + kSEPARATE_CHAR_INVERSE_FILE + to_string(count_id);
+				strLastDocId = &strLine[pos_sep + 1];
+				count_id = 1;
+				count_doc_total++;
+			}
+			//else {
+			//	strLastDocId = &strLine[pos_sep + 1];
+			//	count_id = 1;
+			//	count_doc_total++;
+			//}
 		}
 		else {
 			//更新LastWord等信息
 			if(!strLastWord.empty()){
-				ofsInverseFile << strLastWord << kSEPARATE_CHAR_INVERSE_FILE
-					<< (strDocIds.empty() ? &strLine[pos_sep] : strDocIds) << '\n';
+				strDocIds += kSEPARATE_CHAR_INVERSE_FILE + strLastDocId + kSEPARATE_CHAR_INVERSE_FILE + to_string(count_id);
+				ofsInverseFile << strLastWord << kSEPARATE_CHAR_INVERSE_FILE  << to_string(count_doc_total) << strDocIds <<'\n';
 			}
+			string tmp;
+			strDocIds.swap(tmp);
 			strLastWord.swap(strCurrentWord);
-			strDocIds = &strLine[pos_sep + 1];
+			strLastDocId = &strLine[pos_sep + 1];
+			//strDocIds = &strLine[pos_sep + 1];
+			count_doc_total = 1;
+			count_id = 1;
 		}
 	}
 	//处理最后一个词
-	ofsInverseFile << strLastWord << kSEPARATE_CHAR_INVERSE_FILE << strDocIds << endl;
+	strDocIds += kSEPARATE_CHAR_INVERSE_FILE + strLastDocId + kSEPARATE_CHAR_INVERSE_FILE + to_string(count_id);
+	ofsInverseFile << strLastWord << kSEPARATE_CHAR_INVERSE_FILE  << to_string(count_doc_total)
+				   << strDocIds << endl;
 	return 0;
 }
 
@@ -284,26 +311,26 @@ int _deal_with_system_status(int status) {
 
 //brief:获取响应头中的charset信息
 //     结果保存在ret之中
-int _find_charset_from_header(char *header, int len_header, string &ret) {
-	size_t pos_charset_start = StrFun::FindCase(header, len_header, "charset=", sizeof "charser=" -1 );
-	if (string::npos == pos_charset_start) {
-		ret.clear();
-		return 0;
-	}
-    pos_charset_start += sizeof "charset=" - 1;
-	while (header[pos_charset_start] == ' ') pos_charset_start++;
-	const char *ptr_charset_end = strchr(header + pos_charset_start, '\r');
-	if (!ptr_charset_end) {
-		err_msg("%s:unexpeted end", __FUNCTION__);
-		ret.clear();
-		return -1;
-	}
-	int tmp_pos = ptr_charset_end - header;
-	*(header + tmp_pos) = '\0';
-	ret = header + pos_charset_start;
-	*(header + tmp_pos) = '\r';
-	return 0;
-	
-}
+//int _find_charset_from_header(char *header, int len_header, string &ret) {
+//	size_t pos_charset_start = StrFun::FindCase(header, len_header, "charset=", sizeof "charser=" -1 );
+//	if (string::npos == pos_charset_start) {
+//		ret.clear();
+//		return 0;
+//	}
+//    pos_charset_start += sizeof "charset=" - 1;
+//	while (header[pos_charset_start] == ' ') pos_charset_start++;
+//	const char *ptr_charset_end = strchr(header + pos_charset_start, '\r');
+//	if (!ptr_charset_end) {
+//		err_msg("%s:unexpeted end", __FUNCTION__);
+//		ret.clear();
+//		return -1;
+//	}
+//	int tmp_pos = ptr_charset_end - header;
+//	*(header + tmp_pos) = '\0';
+//	ret = header + pos_charset_start;
+//	*(header + tmp_pos) = '\r';
+//	return 0;
+//	
+//}
 
 

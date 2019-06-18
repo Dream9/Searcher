@@ -26,6 +26,8 @@ static const uint8_t kGBK_FIRST_SPECIAL_BYTE = 0xA1;
 static const uint8_t kASCII_MAX = 128;
 
 static inline int _MIN(int a, int b) { return a < b ? a : b; }
+
+//弃用，该用StrFun::TranselateUrl
 //brief:将url中的特殊字符转换出来
 //becare:URL编码采用百分号编码方式，十六进制格式
 //return:转换后的结果记录在ptrUrl原本指向空间
