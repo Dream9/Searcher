@@ -1,11 +1,5 @@
 # Searcher
-搜索引擎框架测试
+搜索引擎
 
-数据存储使用MySQL;
-数据结构：一个倒排表，一个网页正向索引;
-爬取采用requests;
-解析网页采用BeautifulSoup;
-分词采用了jieba;
-排名采用TF-IDF方法;
-
-
+Python为框架测试
+C++为具体实现
