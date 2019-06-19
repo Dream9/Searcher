@@ -10,6 +10,9 @@
 
 #include"file_engine.h"
 
+#include<unordered_map>
+#include<vector>
+
 const string kVERSION_LINK4SE("1.0");
 
 class Link4SEFile: public FileEngine{

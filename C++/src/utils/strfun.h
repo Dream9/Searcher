@@ -41,13 +41,17 @@ public:
 	//	return s.str();
 	//}
 
-	static size_t FindCase(const string &haystack,
-			                          const string &needle);//等同于search
-    static size_t FindCaseFrom(const string &haystack,
-			                              const string &needle,
-										  string::size_type From );
+	static size_t FindCase(const string &haystack, const string &needle);//等同于search
+	static size_t FindCase(const char *strBegin, int len, const char *targetBegin, int len_target);
+
+    static size_t FindCaseFrom(const string &haystack, const string &needle, string::size_type From );
+
 	static void ReplaceStr(string &str,const string &srstr,const string &dsstr);//等同于replace
+
 	static void EraseStr(string &str,const string &substr);
+
+	//static void TranslateUrl(string &str);
+	static void TranslateUrl(char *str ,int *left_space);
 };
 
 

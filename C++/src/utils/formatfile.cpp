@@ -7,16 +7,13 @@
 
 #include"formatfile.h"
 
-#include<time.h>
-#include<sys/types.h>
-
-#include<unordered_map>
-
 using std::endl;
 static const int kLEN_DOWNLOAD_TIME=128;
 
 extern std::unordered_map<string,string>mapCacheHostLookup;//存储缓存的ip，如果没有记录域名
 extern const string kVERSION_ORIGINAL_PAGE;//版本号，
+//同一目标编码
+const string kTRAGET_CHARSET("gbk");
 
 FormatFile::FormatFile(){}
 
@@ -30,6 +27,7 @@ FormatFile::~FormatFile(){
 //parameter:file_arg结构，记录两个指针，更多信息查阅FileEngine
 //Becare:fstream不是线程安全的，需要自己做同步！！！！！
 //可以考虑调用处负责对文件加锁
+//2019.6.8更改：格式转换到同一格式
 int FormatFile::Write(void *arg){
 	if(!arg || !m_ofsFile){
 		err_msg("No data or bad ofstream");
@@ -67,11 +65,14 @@ int FormatFile::Write(void *arg){
 	m_ofsFile<<"\nip:"
 		     <<(iter==mapCacheHostLookup.end()?ptrUrl->m_sHost:iter->second);
     m_ofsFile<<"\nlength:"<<ptrPage->m_nLenContent+ptrPage->m_nLenHeader+1;
-
 	//空行分割，写入头部和响应体
+	CharsetTransfer::TransferPageCharset(ptrPage, kTRAGET_CHARSET.c_str());
 	m_ofsFile<<"\n\n"<<ptrPage->m_sHeader<<"\n";
 	m_ofsFile.write(ptrPage->m_sContent.c_str(),ptrPage->m_nLenContent);
 	m_ofsFile<<endl;
 
 	return 0;
 }
+
+
+

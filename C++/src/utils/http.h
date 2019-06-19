@@ -14,7 +14,6 @@
 #include"errlog.h"
 #include"rio.h"
 #include"page.h"
-//#include"Config.h"///////
 
 #include<cstdlib>
 #include<cstdio>

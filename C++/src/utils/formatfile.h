@@ -8,6 +8,13 @@
 #define _COLLECTOR_FORMATFILE_H
 
 #include"file_engine.h"
+#include"charset_transfer.h"
+
+#include<unordered_map>
+
+#include<time.h>
+#include<sys/types.h>
+
 
 const string kVERSION_ORIGINAL_PAGE("1.0");
 
