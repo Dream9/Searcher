@@ -7,7 +7,7 @@
 
 #include"crawl.h"
 int main() {
-	Crawl c("seed", "out", 2,  100, 10);
+	Crawl c("seed", "out",3 , 4000, 10);
 	c.Collect();
 	printf("end");
 }

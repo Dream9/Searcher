@@ -12,6 +12,10 @@ INDEXDIR=../index
 OBJS_INDEX=$(wildcard $(INDEXDIR)/*.o)
 OBJS_INDEX+=../utils/errlog.o ../utils/md5.o ../utils/strfun.o
 
+QUERYDIR=../query
+OBJS_CGI=$(wildcard $(QUERYDIR)/*.o)
+OBJS_CGI+=../utils/strfun.o ../index/dictinary.o ../index/word_segement.o ../utils/errlog.o ../utils/rio.o ../index/document.o
+
 
 CC=g++ 
 FLAG=-std=c++11 -Wall -I$(UTILSDIR) -I$(COLLECTDIR) -I$(INDEXDIR)
@@ -40,6 +44,15 @@ word_segement_test: word_segement_test.cpp
 index_test:index_test.cpp
 	$(CC) $(FLAG) -I$(INDEXDIR)/include -o index_test.out $< $(OBJS_INDEX) $(DEBUG)
 
+cgi_test:cgi_test.cpp
+	$(CC) $(FLAG) -I$(QUERYDIR) -o cgi_test.out $< $(OBJS_CGI) $(DEBUG)  
+
+
+search_cgi:search_cgi.cpp
+	$(CC) $(FLAG) -I$(QUERYDIR) -o search.cgi $< $(OBJS_CGI) $(DEBUG)  
+
+env_cgi:env_cgi_test.cpp
+	$(CC) $(FLAG) -I$(QUERYDIR) -o env_cgi_test.cgi $< $(OBJS_CGI) $(DEBUG)  
 
 .PHONY:clean
 
