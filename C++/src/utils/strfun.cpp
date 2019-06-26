@@ -137,6 +137,7 @@ void StrFun::TranslateUrl(char *ptrUrl, int *left_space) {
 				goto FREE_BUF;
 			}
 			*ptrCur++ = tmp_num;
+			++ptrUrl;
 		}
 		else {
 			//err_msg("Encode Url failed");

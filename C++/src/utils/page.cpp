@@ -729,10 +729,10 @@ static int _build_map(const Url &url_parser,RefLink4SE ref[],const int &ref_num,
 			continue;
 		}
 		if (IsFilterLink(strlink)) {
-			log_msg("Bad Link shouled be dopped:(%s)", strlink.c_str());
+			//log_msg("Bad Link shouled be dopped:(%s)", strlink.c_str());
 			continue;
 		}
-#ifdef DEBUG_2_
+#ifdef DEBUG_1_
 		log_msg("Good link: %s", strlink);
 #endif
 		if (strlink == m_sUrl) {
@@ -844,9 +844,13 @@ bool Page::FindRefLink4History() {
 	if (m_sLinkInfo4History.empty()) {
 		return false;
 	}
+	m_vecLink4History.clear();
+	m_nRefLink4HistoryNum = m_vecLink4History.size();
+	return true;
 
 	const char *buffer = m_sLinkInfo4SE.c_str();
-	static char buf[kURL_REFERENCE_LEN>>1];//常驻内存//注意这块空间是被这个类共享的//因此不适合并发计算
+	//static char buf[kURL_REFERENCE_LEN>>1];//常驻内存//注意这块空间是被这个类共享的//因此不适合并发计算
+	char buf[kURL_REFERENCE_LEN>>1];//
 
 	int len_buffer = m_sLinkInfo4SE.size();
 	len_buffer = len_buffer < (kURL_REFERENCE_LEN>>1) - 1 ? len_buffer : (kURL_REFERENCE_LEN>>1) - 1;

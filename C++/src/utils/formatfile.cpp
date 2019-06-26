@@ -13,7 +13,7 @@ static const int kLEN_DOWNLOAD_TIME=128;
 extern std::unordered_map<string,string>mapCacheHostLookup;//存储缓存的ip，如果没有记录域名
 extern const string kVERSION_ORIGINAL_PAGE;//版本号，
 //同一目标编码
-const string kTRAGET_CHARSET("gbk");
+const string kTRAGET_CHARSET("gbk//IGNORE");
 
 FormatFile::FormatFile(){}
 
@@ -52,6 +52,26 @@ int FormatFile::Write(void *arg){
 	///////////需要做同步，或者外部对文件加锁////////
 	/////////////////////////////////////////////////
 	/////////////////////////////////////////////////
+	//测试
+	/*
+	log_msg("Lencontent:%d   LenHeader:%d   ",ptrPage->m_nLenContent,ptrPage->m_nLenHeader);
+	log_msg("content:%d        header:%d",ptrPage->m_sHeader.size(),ptrPage->m_sContent.size());
+	log_msg("before length=%d",ptrPage->m_nLenContent+ptrPage->m_nLenHeader+1);
+	*/
+	
+	
+	if(0!=CharsetTransfer::TransferPageCharset(ptrPage, kTRAGET_CHARSET.c_str())){
+		err_msg("%s:translate page content charset failed", __FUNCTION__);
+		//return 0;
+	}
+
+	//测试
+	/*
+	log_msg("afterLencontent:%d   afterLenHeader:%d   ",ptrPage->m_nLenContent,ptrPage->m_nLenHeader);
+	log_msg("aftercontent:%d        afterheader:%d",ptrPage->m_sHeader.size(),ptrPage->m_sContent.size());
+	log_msg("after length=%d",ptrPage->m_nLenContent+ptrPage->m_nLenHeader+1);
+	*/
+	
 	m_ofsFile<<"version:"<<kVERSION_ORIGINAL_PAGE<<'\n';
 	if(ptrPage->m_sLocation.empty()){
 		m_ofsFile<<"url:"<<ptrPage->m_sUrl;
@@ -60,15 +80,17 @@ int FormatFile::Write(void *arg){
 		m_ofsFile<<"url:"<<ptrPage->m_sLocation;
 		m_ofsFile<<"\norigin:"<<ptrPage->m_sUrl;
 	}
+	
 	m_ofsFile<<"\ndate:"<<strTime;
 	auto iter=mapCacheHostLookup.find(ptrUrl->m_sHost);
 	m_ofsFile<<"\nip:"
 		     <<(iter==mapCacheHostLookup.end()?ptrUrl->m_sHost:iter->second);
-    m_ofsFile<<"\nlength:"<<ptrPage->m_nLenContent+ptrPage->m_nLenHeader+1;
+    //m_ofsFile<<"\nlength:"<<ptrPage->m_nLenContent+ptrPage->m_nLenHeader+1;
+    m_ofsFile<<"\nlength:"<<ptrPage->m_sContent.size()+ptrPage->m_nLenHeader+1;
 	//空行分割，写入头部和响应体
-	CharsetTransfer::TransferPageCharset(ptrPage, kTRAGET_CHARSET.c_str());
+	
 	m_ofsFile<<"\n\n"<<ptrPage->m_sHeader<<"\n";
-	m_ofsFile.write(ptrPage->m_sContent.c_str(),ptrPage->m_nLenContent);
+	m_ofsFile.write(ptrPage->m_sContent.c_str(),ptrPage->m_sContent.size());
 	m_ofsFile<<endl;
 
 	return 0;

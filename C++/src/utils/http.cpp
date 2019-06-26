@@ -257,7 +257,8 @@ int Http::CheckBufSize(char **buf_start, char **buf_finish, char **buf_end_of_st
 
 //brief:连接并负责数据请求
 //return:错误信息
-//parameter:Url,存放数据的各类指针
+//parameter:Url,存放数据的各类指针fileBuf:body; fileHeaderBuf:header
+//         location:location ; 
 //becare:对于重定向错误，只有location获得了资源
 int Http::Fetch(const string &strUrl, char **fileBuf, char **fileHeaderBuf, char **location, int *nSock) {
 	char *requestBuf;
@@ -340,6 +341,7 @@ int Http::Fetch(const string &strUrl, char **fileBuf, char **fileHeaderBuf, char
 	len_tmp = page_parser.m_nStatusCode;
 	log_msg("Status:%d",len_tmp);
 	if (len_tmp == -1) {
+		log_msg("header:%s",page_parser.m_sHeader.c_str());
 		err_msg("ResponseStatusCode wrong");
 		ret=kHTTP_ERROR;
 		goto ERROR_SOCK;
@@ -459,6 +461,10 @@ int Http::Fetch(const string &strUrl, char **fileBuf, char **fileHeaderBuf, char
 	memcpy(*fileHeaderBuf,(char *)&headerBuf[0],len_header+1);
 	*fileBuf=pageBuf;
 	*nSock=sockfd;
+	if(requestBuf){
+		free(requestBuf);
+		requestBuf=nullptr;
+	}
 	return ret;
 
 	//出错出口，释放pageBuf
@@ -466,7 +472,9 @@ ERROR_PAGE:
 #ifdef DEBUG_L
 	tmp_lock.lock();
 #endif
-	free(pageBuf);
+	if(pageBuf){
+		free(pageBuf);
+	}
 #ifdef DEBUG_L
 	tmp_lock.unlock();
 #endif
@@ -483,7 +491,9 @@ ERROR_BUF:
 #ifdef DEBUG_L
 	tmp_lock.lock();
 #endif
-	free(requestBuf);
+	if(requestBuf){
+		free(requestBuf);
+	}
 #ifdef DEBUG_L
 	tmp_lock.unlock();
 #endif
@@ -497,7 +507,7 @@ ERROR_BUF:
 //return：错误信息或者头部长度，ret负责获得接受资源
 //注意释放ret资源
 int Http::_WrapHeader(const string &strUrl, Url &url_parser, void **ret) {
-	char *url;
+	//char *url;
 	char *requestBuf;
 	char *buf_finish;
 	char *buf_end_of_storage;
@@ -517,15 +527,15 @@ int Http::_WrapHeader(const string &strUrl, Url &url_parser, void **ret) {
 #ifdef DEBUG_L
 	std::unique_lock<std::mutex> tmp_lock(mutexMemory);
 #endif
-	url = (char*)calloc(strUrl.size()+1,1);
+	//url = (char*)calloc(strUrl.size()+1,sizeof(char));
 #ifdef DEBUG_L
 	tmp_lock.unlock();
 #endif
-	if (!url) {
-		err_ret("malloc failed,%d,", errno);
-		return kHTTP_ERROR;
-	}
-	memcpy(url,strUrl.c_str(), strUrl.size());
+	//if (!url) {
+	//	err_ret("malloc failed,%d,", errno);
+	//	return kHTTP_ERROR;
+	//}
+	//memcpy(url,strUrl.c_str(), strUrl.size());
 
 	host = url_parser.m_sHost.c_str();
 	path = url_parser.m_sPath.c_str();
@@ -535,7 +545,7 @@ int Http::_WrapHeader(const string &strUrl, Url &url_parser, void **ret) {
 #ifdef DEBUG_L
 	tmp_lock.lock();
 #endif
-	requestBuf = (char*)calloc(bufsize,1);
+	requestBuf = (char*)calloc(bufsize,sizeof(char));
 #ifdef DEBUG_L
 	tmp_lock.unlock();
 #endif
@@ -610,6 +620,7 @@ int Http::_WrapHeader(const string &strUrl, Url &url_parser, void **ret) {
 	tmp_lock.lock();
 #endif
 	*ret = realloc((char *)requestBuf, len_tmp + 1);//Becare:给\0预留空间
+	requestBuf=nullptr;//
 #ifdef DEBUG_L
 	tmp_lock.unlock();
 #endif
@@ -625,7 +636,9 @@ ERROR_BUF:
 #ifdef DEBUG_L
 	tmp_lock.lock();
 #endif
-	free(requestBuf);
+	if(requestBuf){
+		free(requestBuf);
+	}
 #ifdef DEBUG_L
 	tmp_lock.unlock();
 #endif
@@ -633,14 +646,18 @@ ERROR_BUF:
 
 	//出错出口，统一释放url
 ERROR_STRDUP:
+	/*
 #ifdef DEBUG_L
 	tmp_lock.lock();
 #endif
-	free(url);
+	if(url){
+		free(url);
+	}
 #ifdef DEBUG_L
 	tmp_lock.unlock();
 #endif
 	url = nullptr;
+	*/
 	return kHTTP_ERROR;
 }
 
@@ -688,7 +705,7 @@ RESTART_SELECT:
 				//允许重启
 				goto RESTART_SELECT;
 			}
-			err_ret("Receive data failed or timeout:%d",sockfd);
+			err_ret("%s:Receive data failed or timeout:",__FUNCTION__);
 			return kHTTP_ERROR;
 		}
 		ret=RioRead(sockfd,buf,1);

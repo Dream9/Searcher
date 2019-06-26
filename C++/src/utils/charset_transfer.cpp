@@ -45,12 +45,13 @@ int CharsetTransfer::Convert(const char *from_charset, const char *to_charset, c
 	//转换
 	if (iconv(cd, pin, &inlen, pout, &outlen) == (size_t)-1) {
 		err_msg("iconv() failed");
+		iconv_close(cd);
 		return -2;
 	}
 	
 	//关闭流
 	iconv_close(cd);
-	**pout = '\0';
+	//**pout = '\0';
 	return 0;
 }
 
@@ -172,6 +173,7 @@ int CharsetTransfer::FindCharsetFromHeader(const char *header, int len_header, s
 
 
 //brief:转换网页编码
+//becare:"//IGNORE"
 int CharsetTransfer::TransferPageCharset(Page *page_parser, const char *target_charset) {
 	//编码转化
 	if (page_parser->m_sCharset.empty()) {
@@ -195,7 +197,8 @@ int CharsetTransfer::TransferPageCharset(Page *page_parser, const char *target_c
 			}
 		}
 	}
-	//log_msg("charset:%s--to %s",page_parser->m_sCharset.c_str(),target_charset);
+	//test
+	log_msg("charset from %s to %s",page_parser->m_sCharset.c_str(),target_charset);
 	if (string::npos != StrFun::FindCase(page_parser->m_sCharset, "gb")) {
 		//不须转换
 		return 0;
@@ -205,13 +208,13 @@ int CharsetTransfer::TransferPageCharset(Page *page_parser, const char *target_c
 	size_t len_source_info = page_parser->m_sContent.size();
 	char *buf = (char *)malloc(max_len);
 	if (0 != Convert(page_parser->m_sCharset.c_str(), target_charset, &(page_parser->m_sContent)[0], len_source_info, buf, max_len)) {
-		err_msg("%s:Convert() error", __FUNCTION__);
+		err_msg("%s:Convert() error,%s", __FUNCTION__,page_parser->m_sUrl.c_str());
 		free(buf);
 		buf = nullptr;
 		return -1;
 	}
 	if (len_source_info > 0) {
-		err_msg("Infomation may lost");
+		err_msg("%s:Infomation may lost", __FUNCTION__);
 	}
 	page_parser->m_sContent = buf;
 	free(buf);
@@ -230,7 +233,7 @@ int CharsetTransfer::_find_meta_charset(const char *source, string &charset) {
 	}
 	const char *ptr_pos_end = strstr(source, "</head>");
 	if (!ptr_pos_end) {
-		err_msg("%s:invalid format without </headt> tag", __FUNCTION__);
+		err_msg("%s:invalid format without </head> tag", __FUNCTION__);
 		return -1;
 	}
 	size_t pos_end = ptr_pos_end - source;
@@ -241,23 +244,40 @@ int CharsetTransfer::_find_meta_charset(const char *source, string &charset) {
 		return 0;
 	}
 	pos_charset += sizeof"charset=" - 1;
-	//提过空格
-	while (*(source + pos_charset) == ' ') {
-		++pos_charset;
+	// 跳过特殊字符
+	const char *ptr_pos_start = source + pos_charset;
+	while (*ptr_pos_start) {
+		char cur = *ptr_pos_start;
+		if (cur == '\"' || cur == '\r' || cur == '\n' || cur == '>' || cur == ';' || cur == ' ') {
+			++ptr_pos_start;
+			continue;
+		}
+		else{
+			break;
+		}
 	}
-	ptr_pos_end = source + pos_charset;
+	//pos_end = source.find_first_of("\"> ;\r\n");
+	if (!*ptr_pos_start) {
+		charset.clear();
+		return 0;
+	}
+	ptr_pos_end=ptr_pos_start + 1;
 	while (*ptr_pos_end) {
 		char cur = *ptr_pos_end;
 		if (cur == '\"' || cur == '\r' || cur == '\n' || cur == '>' || cur == ';') {
 			break;
 		}
-		++ptr_pos_end;
+		else{
+			++ptr_pos_end;
+			continue;
+		}
 	}
 	//pos_end = source.find_first_of("\"> ;\r\n");
 	if (!*ptr_pos_end) {
 		charset.clear();
 		return 0;
 	}
-	charset = string(source + pos_charset, ptr_pos_end);
+	
+	charset = string(ptr_pos_start, ptr_pos_end);
 	return 0;
 }
