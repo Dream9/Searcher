@@ -115,16 +115,16 @@ public:
     int GetInput();
 	int GetDictinary(Dictinary &, const char *);
 	int HandleQueryString(Dictinary &);
-	int GetAnswer(int, unordered_map<string,string> &, score_container &);
+	int GetAnswer(int, unordered_map<string,string> &, score_container &,vector<string> &, vector<float> &);
 
 	int ParameterSplit(const char *, const char, vector<string> &);
 	
-private:
 	//存储多个参数
 	//container m_query_string;
-	//存储一个参数
+	////存储一个参数
 	string m_query_string;
-
+	
+private:
     int _load_forward_data(unordered_map<int,int> &, const char *);
 	int _load_inverse_data(unordered_map<string,string> &, const char *);
 	int _log_query();

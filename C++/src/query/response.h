@@ -8,6 +8,7 @@
 #ifndef _INDEX_RESPONSE_H
 #define _INDEX_RESPONSE_H
 #include"query.h"
+#include"document.h"
 
 #include<fstream>
 #include<cstring>
@@ -19,11 +20,12 @@ public:
 	int ResponseTop(const char *);
 	int ResponseSelectPage(int, int, int, const char *);
 	int ResponseResult(const char *str_query_word, score_container &query_ans,
-		size_t page_number, const char *file_path, forward_index_type &doc_idx);
+		size_t page_number, const char *file_path, forward_index_type &doc_idx,
+		vector<string> &words, vector<float> &idf);
 
 private:
 
-	int _abstract_and_highlight(const char *);
+	int _abstract_and_highlight(const char *, std::vector<string> &, vector<float> &);
 };
 
 

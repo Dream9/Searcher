@@ -52,7 +52,6 @@ int Query::GetInput() {
 		return kERROR_QUERY_PARAMETER;
 	}
 	//解析参数串，格式形如 word=六六六&sdf=sss
-	//对于本搜索引擎而言，理论上只有word=六六六
 	//但考虑到扩展性可以假设有不确定个参数需要提取
 	/*假设有多个参数：
 	vector<string> vec_query;
@@ -72,10 +71,18 @@ int Query::GetInput() {
 	if (!pos_equal_char) {
 		return kERROR_QUERY_PARAMETER;
 	}
-	StrFun::TranslateUrl(pos_equal_char,&length);
+	StrFun::TranslateUrl(pos_equal_char,&length);//length返回未使用的长度
 
-	m_query_string = (pos_equal_char + 1);
-	if (m_query_string.empty() || string::npos != m_query_string.find_first_of(kHTML_PARAMETER_DELIM_CHAR)) {
+	//要求第一个参数为word=XXX&...
+	//...会被省略，xxx为查询词
+	char *pos_end=strchr(pos_equal_char, kHTML_PARAMETER_DELIM_CHAR);
+	if(pos_end){
+		m_query_string.assign(pos_equal_char+1,pos_end);
+	}
+	else{
+		m_query_string.assign(pos_equal_char+1);
+	}
+	if (m_query_string.empty()) {
 		return kERROR_QUERY_PARAMETER;
 	}
 	return ret;
@@ -202,7 +209,8 @@ int Query::_load_inverse_data(unordered_map<string, string> &inverse_index, cons
 
 
 //brief:利用TF-IDF计算网页得分
-int Query::GetAnswer(int total_doc_number, unordered_map<string,string> &mapInverse, score_container &score_ret) {
+int Query::GetAnswer(int total_doc_number, unordered_map<string,string> &mapInverse, score_container &score_ret,
+                     vector<string> &vec_words, vector<float> &vec_idf) {
 	string word;
 	size_t pos_start = 0;
 	size_t pos_sep;
@@ -219,7 +227,7 @@ int Query::GetAnswer(int total_doc_number, unordered_map<string,string> &mapInve
 			continue;
 		}
 		//计算idf
-		int word_doc_number;
+		int  word_doc_number;
 		const char *ptr_start = mapInverse[word].c_str();
 		if (1 != sscanf(ptr_start, sscanf_format.c_str(), &word_doc_number)) {
 			//数据文件有问题
@@ -227,7 +235,10 @@ int Query::GetAnswer(int total_doc_number, unordered_map<string,string> &mapInve
 		}
 		const char *ptr_end = strchr(ptr_start, kSEPARATE_CHAR_INVERSE_FILE);
 		//int word_doc_number = std::stoi(string(ptr_start, ptr_end));
-		float idf = log(total_doc_number / word_doc_number);
+		float idf = log((float)total_doc_number / word_doc_number);
+		//记录这些idf
+		vec_words.emplace_back(word);
+		vec_idf.emplace_back(idf);
 		//更新每一个网页的权重
 		ptr_start = ptr_end + 1;
 		while (word_doc_number > 0) {
@@ -252,8 +263,8 @@ int Query::GetAnswer(int total_doc_number, unordered_map<string,string> &mapInve
 			}
 		}
 	}
-	//结果排序
-	std::multimap<float, int> tmp4sort;
+	//结果排序,,,注意降序排列
+	std::multimap<float, int, std::greater<float>> tmp4sort;
 	for (auto cur : tmp_score) {
 		tmp4sort.insert({ cur.second,cur.first });
 	}
