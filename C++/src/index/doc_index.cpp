@@ -130,6 +130,8 @@ int CreateDocIndex(const char *filepath, const char *url_idx_file,
 		char *buf = (char*)calloc(sizeof(char), doc_parser.m_nLength + 1);
 		ifsData.read(buf, doc_parser.m_nLength);
 		md5_parser.GenerateMd5((uint8_t*)buf, doc_parser.m_nLength);
+		free(buf);
+		buf=nullptr;
 
 		//ofsDoc信息记录
 		ofsDoc << doc_parser.m_Doc.DocId << kSEPARATE_CHAR_DOC \

@@ -165,8 +165,10 @@ string WordSegment::Segment_need_preprose(Dictinary &dict, const string & strDoc
 		while (tmpi < len && tmpi + 1 <len && (uint8_t)strDoc[tmpi] >= kGBK_FIRST_CHARACTER_BYTE) {
 			tmpi += 2;
 		}
-		str_out += Segment(dict, strDoc.substr(iter, tmpi - iter));
-		iter = tmpi;
+		if(iter<len){
+			str_out += Segment(dict, strDoc.substr(iter, tmpi - iter));
+			iter = tmpi;
+		}
 	}
 	return str_out;
 }
