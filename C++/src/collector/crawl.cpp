@@ -65,6 +65,8 @@ static const int kERROR_CRITICAL = -999;
 
 
 static const int kMAXFILELINEBUF = 2048;
+static const int kSLEEP_TIME_WHEN_EMPTY_URL = 60;
+static const int kSLEEP_TIME_WHEN_FINISH_ONE = 1;
 
 static int _SaveReplicas(const char *);//保存重复页面信息
 static void _SaveUnvisitedUrl();//保存尚未访问的link
@@ -401,6 +403,7 @@ int Crawl::fetch(void *arg) {
 	int prev_sockfd = -1;
 	int empty_count = 0;
 	int page_count = 0;
+	int fd_use_count = 0;
 
 	std::unique_lock<std::mutex> visitedUrlMd5_lock(mutexVisitedUrlMd5, std::defer_lock);
 
@@ -417,9 +420,10 @@ int Crawl::fetch(void *arg) {
 	while (empty_count<200 && ret!=kERROR_CRITICAL) {
 		url_lock.lock();
 		if (mapUrl.empty()) {
+			log_msg("Empty mapUrl at %s,sleep ...", __FUNCTION__);
 			empty_count++;
 			url_lock.unlock();
-			this_thread::sleep_for(chrono::seconds(600));
+			this_thread::sleep_for(chrono::seconds(kSLEEP_TIME_WHEN_EMPTY_URL));
 			continue;
 		}
 		auto iter = mapUrl.begin();
@@ -456,12 +460,20 @@ int Crawl::fetch(void *arg) {
 		visitedUrlMd5_lock.unlock();
 		
 		//是否续用之前的端口
+		if(fd_use_count>10){
+			close(prev_sockfd);
+			prev_sockfd = -1;
+		}
+		else{
+			fd_use_count++;
+		}
 		if (prev_host != url_parser.m_sHost) {
 			prev_host = url_parser.m_sHost;
 			if (prev_sockfd > 0) {
 				close(prev_sockfd);
 				prev_sockfd = -1;
 			}
+			fd_use_count = 0;
 		}
 
 		//发生致命错误时会退出循环
@@ -470,6 +482,8 @@ int Crawl::fetch(void *arg) {
 		if(page_count>m_nPageEachThread){
 			break;
 		}
+		//防止过快
+		this_thread::sleep_for(chrono::seconds(kSLEEP_TIME_WHEN_FINISH_ONE));
 #ifdef DEBUG_TEST_SINGTHREAD_
 		log_msg("ret=%d", ret);
 		if(page_count>=10){
@@ -548,24 +562,27 @@ static int WebComplete(string &str_web,const Url &url_parser,const string &m_sUr
 //brief:处理重定向的辅助函数
 //return:错误信息
 //becare:重定向次数超过阈值3将会出错
+//parameter注意传入的是指针的指针，小心内存泄露2019.6.24
 //todo:部分网站从http强制掉转到https,因此必须实现ssl握手通信
-int _DealWithHTTPLoaction(char *strlocation, const Url &url_parser, char *body, char *header,int &status,
+int _DealWithHTTPLoaction(char **strlocation, const Url &url_parser, char **body, char **header,int &status,
 	                      Http &http_collector,int &sock) {
-	if (!strlocation) {
+	if (!*strlocation) {
 		return kERROR_COLLECT_LINK;
 	}
 	int count = 0;
 
 	while (count < 3) {
-	    string strUrl = strlocation;
+	    string strUrl = *strlocation;
 #ifdef DEBUG_L
 		std::unique_lock<std::mutex> tmp_lock(mutexMemory);
 #endif
-		free(strlocation);
+        if(*strlocation){
+			free(*strlocation);
+		}
 #ifdef DEBUG_L
 		tmp_lock.unlock();
 #endif
-		strlocation=nullptr;
+		*strlocation=nullptr;
 		if (strUrl.empty() || strUrl.size() > kURL_LEN - 1) {
 			return kERROR_COLLECT_LINK;
 		}
@@ -578,7 +595,7 @@ int _DealWithHTTPLoaction(char *strlocation, const Url &url_parser, char *body, 
 		if (page_parser.IsFilter(strUrl)) {
 			return kERROR_COLLECT_LINK;
 		}
-		status = http_collector.Fetch(strUrl, &body, &header, &strlocation, &sock);
+		status = http_collector.Fetch(strUrl, body, header, strlocation, &sock);
 		if (status == kHTTP_LOCATION) {
 			count++;
 		}
@@ -613,7 +630,7 @@ int Crawl::DownloadFile(FormatFile *ptrFormatFile, Link4SEFile *ptrLink4SEFile, 
 	//处理异常情况
 	//特别的是重定向错误，需要重新fetch
 	if (response == kHTTP_LOCATION) {
-		ret = _DealWithHTTPLoaction(location, url_parser, body, header, response, http_collector, sock);
+		ret = _DealWithHTTPLoaction(&location, url_parser, &body, &header, response, http_collector, sock);
 	}
 	sockfd = sock;
 	if (ret == kERROR_COLLECT_LINK) {
@@ -686,6 +703,7 @@ int Crawl::DownloadFile(FormatFile *ptrFormatFile, Link4SEFile *ptrLink4SEFile, 
 	//针对gzip解码
 	//需要zlib库
 	if (page_parser.m_sContentEncoding == "gzip" && page_parser.m_sContentType=="text/html") {
+		log_msg("gzip...");
 		if ((ret = (_DealWithGzip(page_parser.m_sContent, strunzipstring))) < 0) {
 			goto ERROR_BUF;
 		}
@@ -715,10 +733,7 @@ int Crawl::DownloadFile(FormatFile *ptrFormatFile, Link4SEFile *ptrLink4SEFile, 
 	////////////////////////////////////
 	////////////////////////////////////
 	////////////////////////////////////
-	//Raw信息记录
-	SaveFormatFile(ptrFormatFile, &url_parser, &page_parser);
-	//todo:是否有必要？？
-	//SaveIsamFile(&url_parser, &page_parser);
+	
 
 	//Url记录
 	//if (page_parser.m_sLocation.empty()) {
@@ -744,6 +759,11 @@ int Crawl::DownloadFile(FormatFile *ptrFormatFile, Link4SEFile *ptrLink4SEFile, 
 	if (0 != (ret=SaveLink4History(&page_parser))) {
 		goto ERROR_BUF;
 	}
+	//Raw信息记录
+	//becare:涉及到编码转换问题
+	SaveFormatFile(ptrFormatFile, &url_parser, &page_parser);
+	//todo:是否有必要？？
+	//SaveIsamFile(&url_parser, &page_parser);
 	log_msg("link extract finished");
 	ret = 0;
 
