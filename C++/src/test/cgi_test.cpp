@@ -15,7 +15,7 @@ int main() {
 	//模拟环境
 	char test1[]="REQUEST_METHOD=GET";
 	putenv(test1);
-	char test2[]="QUERY_STRING=word=%CA%B5%D1%E9%CA%D2";
+	char test2[]="QUERY_STRING=word=%B5%C4%CE%CA%CC%E2";
 	putenv(test2);
 	char test3[]="HTTP_HOST=/dream9/search_cgi";
 	putenv(test3);
@@ -52,8 +52,8 @@ int main() {
 
 	//结果反馈
 	Response feedback;
-	feedback.ResponseTop("考试");
-	feedback.ResponseResult("考试", ans, page_no, rawpath, doc_index,words,idf);
+	feedback.ResponseTop(query_agent.m_query_string.c_str());
+	feedback.ResponseResult(query_agent.m_query_string.c_str(), ans, page_no, rawpath, doc_index,words,idf);
 	feedback.ResponseSelectPage(ans.size(),used_msec,1,"4asd5f46");
 	//结果序列化
 	//todo
