@@ -47,6 +47,7 @@ public:
 	}
 	//int Refine(const char *, string &);
 	int Refine(const char *);
+	int RefineWithSeparate(const char *);
 
 };
 
