@@ -20,6 +20,7 @@ static const uint8_t kGBK_FIRST_CHARACTER_BYTE = 0xB0;
 static const uint8_t kASCII_MAX = 128;
 //动态摘要长度
 static const int kABSTRACT_LENGTH = 256;
+static const int kABSTRACT_LENGTH_MAX = 320;
 static const char kSEPARATE_ABSTRACT_PARAGRAPHY='/';
 
 static int _find_end_position_of_abstract(const char *strRefine, const char *strRefineLast, const char *cur);
@@ -150,7 +151,7 @@ int Response::ResponseTop(const char *query_string) {
 	replace(tmp_str.begin(),tmp_str.end(),kSEPARATE_CHAR,' ');
 	cout << "<tr style=\"text_align:center;vertical-align:middle;\">\n<td><span><form method=get action=" << kCGI_QUERY_PATH
 		<< " name=got class=f>"
-		"<input type=text name=word size=55 value=" << tmp_str << ">\n"
+		"<input type=text name=word size=55 value=\"" << tmp_str << "\">\n"//注意这个“”“”是必不可少的
 		"<input type=submit value=搜索>\n"
 		"<input type=hidden name=start value=1>\n"//隐藏标签
 		"</form></span></td></tr>"
@@ -237,18 +238,20 @@ int Response::_abstract_and_highlight(const char *str, vector<string> &words, ve
 				//需要和前面的合并
 				int _start=vecQuickUnion.back().second;
 				auto _iter=mapScore.find(_start);
-				if((*_iter).second.first<kABSTRACT_LENGTH){
-					//合并
+				auto len_if_merge = idx_last - _start;
+				if((*_iter).second.first<kABSTRACT_LENGTH && len_if_merge < kABSTRACT_LENGTH_MAX
+						&& len_if_merge >0){
+					//合并,同一个词的索引一定是递增的，但多个词合并时要小心逆向
 					vecQuickUnion.emplace_back(std::make_pair(idx_start,_start));
-					(*_iter).second.first=idx_last - _start;
+					(*_iter).second.first= len_if_merge;
 					(*_iter).second.second+=idf[iter];
 					if((*_iter).second.second>max_weight){
-						max_weight=idf[iter];
+						max_weight=(*_iter).second.second;
 						max_weight_position=_start;
 					}
 				}
 				else{
-					//前方过长,不能合并
+					//不能合并时
 					vecQuickUnion.emplace_back(std::make_pair(idx_start,idx_start));
 					mapScore.insert({idx_start,{length,idf[iter]}});
 					if(idf[iter]>max_weight){
