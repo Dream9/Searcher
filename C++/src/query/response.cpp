@@ -25,6 +25,7 @@ static const char kSEPARATE_ABSTRACT_PARAGRAPHY='/';
 
 static int _find_end_position_of_abstract(const char *strRefine, const char *strRefineLast, const char *cur);
 static int _find_start_position_of_abstract(const char *strRefine, const char *cur);
+static int _response_with_empty_answer(const char *strWord);
 static bool _is_trival(char c);
 
 #define ENSURE_EXIST(x) if(!x){continue;}
@@ -39,6 +40,9 @@ static bool _is_trival(char c);
 int Response::ResponseResult(const char *str_query_word, score_container &query_ans,
 	size_t page_number, const char *file_path, forward_index_type &doc_idx,
 	vector<string> &words, vector<float> &idf) {
+	if(query_ans.empty()){
+		return _response_with_empty_answer(str_query_word);
+	}
 	//打开原始数据文件
 	//todo:mmap实现
 	std::ifstream ifsData(file_path, ios::in | ios::binary);
@@ -393,8 +397,15 @@ int _find_end_position_of_abstract(const char *strRefine, const char *strRefineL
 
 //brief:精简abstract
 bool _is_trival(char c){
-	if(c=='\r' || c=='\n' || c=='/'){
+	if(c=='\r' || c=='\n' || c==kSEPARATE_ABSTRACT_PARAGRAPHY){
 		return true;
 	}
 	return false;
+}
+
+
+//brief:针对空的搜索结果应答
+int _response_with_empty_answer(const char *strWord){
+	cout<<"<p>surprise!!空空如也</p>\n";
+	return 0;
 }
