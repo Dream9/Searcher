@@ -1,6 +1,7 @@
 ALL:target
 
 TOPDIR=$(shell pwd)
+SUBDIR=pagerank
 INCLUDEDIR=./include
 UTILSDIR=../utils
 
@@ -23,13 +24,23 @@ test:
 	@echo $(OBJS)
 	@echo $(SOURCES)
 	@echo $(INCLUDEIDR)
+	@echo $(SUBDIR)
 
-target:$(OBJS)
+target:$(OBJS) $(SUBDIR)
 	@echo $(OBJS)
 	@echo "Done!"
+
+$(SUBDIR): ECHO
+	$(MAKE) -C $@
+	
+ECHO:
+	@echo $(SUBDIR)
 
 .PHONY:clean
 
 clean:
+	@for dir in $(SUBDIR);\
+		do $(MAKE) -C $$dir clean || exit 1;\
+		done
 	rm -f *.o
 	@echo Clean!
