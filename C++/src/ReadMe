@@ -1,15 +1,18 @@
 目录结构
 src
-├─collector	数据搜集模块
+├─collector	    数据搜集模块
 │  └─include
-├─doc		测试文档
+├─doc		        测试文档
 │  └─tmp
-├─index		索引模块
+├─index		      索引模块
+│  ├─include
+│  └─pagerank   PageRank网页排序
+├─query		      查询模块
 │  └─include
-├─query		查询模块
-│  └─include
-├─test		测试文件
+├─test		      测试文件
 │  └─Catch2
-├─utils		其他基础功能
+├─utils		      其他基础功能
 │  └─include
-└─html		用户界面
+└─html		      用户界面
+
+
