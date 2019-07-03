@@ -41,16 +41,24 @@ int Pagerank_sparse::Init() {
 	_value.resize(_nonzero_number);
 	auto iter = m_mapOutdegree.begin();
 	int cur = 0;
+	int index=0;
+	//becare:出度为零的网页存在一项矫正，，，不要忘记了！！！！
 	while (iter != m_mapOutdegree.end()) {
 		int i = iter->first;
+		while(index!=i){
+			_dead_page.emplace_back(index++);
+		}
 		double weight_with_alpha = _alpha * 1.0 / iter->second.size();
-		int start = cur;
 		for (int j : iter->second) {
 			_row[cur] = j - 1;
 			_column[cur] = i - 1;
 			_value[cur++] = weight_with_alpha;
 		}
 		++iter;
+		++index;
+	}
+	while(index<_max_id){
+		_dead_page.emplace_back(index++);
 	}
 	//row[_max_id] = _nonzero_number;
 	return 0;
@@ -65,10 +73,14 @@ int Pagerank_sparse::Calc() {
 		return -1;
 	}
 	int iteration_count = 0;
+	double jump_dead_page_value = _alpha * 1.0 / _max_id;//dead_page修正值
 	pr_type last_pr(PR.begin(), PR.end());
+	auto ptrPR=&PR;
 	while (iteration_count < _max_iteration_depth) {
 		//零元素矩阵相乘的默认值
 		double default_jump_value = (1.0 - _alpha) / _max_id * std::accumulate(PR.begin(), PR.end(), 0.0);
+		//double dead_page_adjust=std::accumulate(_dead_page.begin(), _dead_page.end(), 0.0, [&ptrPR](double init, int id) {return init + (*ptrPR)[id]; });
+		default_jump_value += std::accumulate(_dead_page.begin(), _dead_page.end(), 0.0, [&](double init, int id) {return init + (*ptrPR)[id] * jump_dead_page_value; });
 		std::for_each(PR.begin(), PR.end(), [default_jump_value](pr_type::value_type &i) {i = default_jump_value; });
 		int len_tmp = _row.size();
 		//COO稀疏矩阵乘法

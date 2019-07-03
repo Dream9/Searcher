@@ -6,14 +6,12 @@
  ************************************************************************/
 #include"pagerank.h"
 
-#define ENSURE(x) if(!x){err_ret("%s:fopen() faild", __FUNCTION__);return -1;}
+#define ENSURE(x) if(!x){err_msg("%s:fopen() faild", __FUNCTION__);return -1;}
 #define MAX_N(x,y) (x>y?x:y)
 //brief:读取网页连接信息
 int Pagerank::OpenData(const char *filepath) {
 	FILE *ifs = fopen(filepath, "rb");
-#ifdef __GNUC__
 	ENSURE(ifs);
-#endif
 	int urlid;
 	int out_urlid;
 	while (2 == fscanf(ifs, "%d %d", &urlid, &out_urlid)) {
@@ -27,27 +25,27 @@ int Pagerank::OpenData(const char *filepath) {
 		_max_id = MAX_N(_max_id, (MAX_N(urlid, out_urlid)));
 	}
 	if (!feof(ifs)) {
-		//err_msg("%s:unexpected file end", __FUNCTION__);
+		err_msg("%s:unexpected file end", __FUNCTION__);
+		fclose(ifs);
 		return -1;
 	}
+	fclose(ifs);
 	return 0;
 
 }
 #undef ENSURE
 
-//brief:
+//brief:初始化PR值，G矩阵
 //becare:要求url id从1开始
 //      todo:稀疏矩阵优化！！！
 int Pagerank::Init() {
 	if (m_mapOutdegree.empty()) {
-#ifdef __GNUC__
 		err_msg("%s:empty data", __FUNCTION__);
-#endif
 		return -1;
 	}
 	int num = _max_id;
 	double original_pr = 1.0 / num;//初始pr都相等
-	double dead_page = original_pr;//悬挂网页的修正值
+	double dead_page_with_alpha = _alpha * original_pr;//悬挂网页的修正值
 	double jump_value = (1 - _alpha) / num;//随机跳转修正值
 	//初始G矩阵,已经带有随机跳转修正值
 	g_type(num, vector<double>(num, jump_value)).swap(G);
@@ -64,14 +62,16 @@ int Pagerank::Init() {
 			//double weight_with_alpha=weight*alpha;
 			double weight_with_alpha = _alpha * 1.0 / iter->second.size();
 			for (int outid : iter->second) {
-				G[i][outid-1] = weight_with_alpha;
+				//...搞反了，列向量才是出链的权值
+				//G[i][outid-1] = weight_with_alpha;
+				G[outid-1][i] = weight_with_alpha;
 			}
 			++iter;
 		}
 		else {
 			//针对悬挂网页，需要加入一项修正值
 			for (int j = 0; j < num; ++j) {
-				G[j][i] += dead_page;
+				G[j][i] += dead_page_with_alpha;
 			}
 		}
 	}
@@ -83,9 +83,7 @@ int Pagerank::Init() {
 //brief:迭代计算过程
 int Pagerank::Calc() {
 	if (G.empty() || PR.empty()) {
-#ifdef __GNUC__
 		err_msg("%s:no data", __FUNCTION__);
-#endif
 		return -1;
 	}
 	int depth = 0;
@@ -118,7 +116,16 @@ int Pagerank::Calc() {
 
 //brief:输出PR结果
 int Pagerank::Show(std::ostream_iterator<double> &out) {
-	std::copy(PR.begin(), PR.end(), out);
+	std::copy(PR.begin(), PR.end(), out):
 	//pr_type().swap(PR);
+	return 0;
+}
+
+//brief:获得计算结果
+//becare:out中按照pr值排序
+int Pagerank::GetSortedResult(out_type& out){
+	int i=0;
+	std::transform(PR.begin(),PR.end(),std::back_inserter<out_type>(out),[&i](double pr){return std::make_pair(i++,pr);});
+	std::sort(out.begin(),out.end(),[](const out_type::value_type &first,const out_type::value_type &second){return first.second<second.second;});
 	return 0;
 }

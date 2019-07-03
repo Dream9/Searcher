@@ -8,13 +8,12 @@
 #ifndef _INDEX_PAGERANK_H
 #define _INDEX_PAGERANK_H
 
-#ifdef __GNUC__
-include"errlog.h"
-#endif
+#include"errlog.h"
 
 #include<map>
+#include<cmath>
 #include<vector>
-#include<string>
+#include<string.h>
 #include<cstdlib>
 #include<cstdio>
 #include<algorithm>
@@ -24,6 +23,7 @@ include"errlog.h"
 using std::string;
 using std::map;
 using std::vector;
+using std::pair;
 const double kTHRESHOLD = 1e-6;
 const int kITERATION_DEPTH = 50;
 
@@ -42,11 +42,13 @@ protected:
 	g_type G;
 
 	double _alpha;//不转移概率，默认0.85
-	int _max_id;//becare:这里假设url编码从1到_max_id，，todo
 	double _threshold;//迭代阈值
 	int _max_iteration_depth;//最大迭代深度
+	int _max_id;//becare:这里假设url编码从1到_max_id，，todo
 
 public:
+	typedef vector<pair<int,double>> out_type;
+
 	virtual int OpenData(const char *filepath);
 	virtual int Init();
 	virtual int Calc();
@@ -56,6 +58,7 @@ public:
 		g_type().swap(G);
 		degre_type().swap(m_mapOutdegree);
 	}
+	virtual int GetSortedResult(out_type&);
 
 	Pagerank(double alpha = 0.85, double threshold = kTHRESHOLD, int depth = kITERATION_DEPTH) : _alpha(alpha),
 		_threshold(threshold), _max_iteration_depth(depth), _max_id(0){  }

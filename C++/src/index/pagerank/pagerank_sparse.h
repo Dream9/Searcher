@@ -21,6 +21,7 @@ protected:
 	sparse_index_type _column;
 	sparse_index_type _row;
 	sparse_value_type _value;
+	sparse_index_type _dead_page;//记录出度为0的网页
 	int _nonzero_number;
 public:
 	//virtual int OpenData(const char *file);/*不作修改*/
