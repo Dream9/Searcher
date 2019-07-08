@@ -43,15 +43,19 @@ int Pagerank_sparse::Init() {
 	int cur = 0;
 	int index=0;
 	//becare:出度为零的网页存在一项矫正，，，不要忘记了！！！！
+	//becare:url索引是从1开始编写，对应0数组索引位置
 	while (iter != m_mapOutdegree.end()) {
-		int i = iter->first;
+		int i = iter->first - 1;
 		while(index!=i){
 			_dead_page.emplace_back(index++);
 		}
 		double weight_with_alpha = _alpha * 1.0 / iter->second.size();
 		for (int j : iter->second) {
-			_row[cur] = j - 1;
-			_column[cur] = i - 1;
+			if(--j==i){//防止自环
+				continue;
+			}
+			_row[cur] = j;
+			_column[cur] = i;
 			_value[cur++] = weight_with_alpha;
 		}
 		++iter;
@@ -67,15 +71,25 @@ int Pagerank_sparse::Init() {
 //brief:基于COO稀疏矩阵计算
 int Pagerank_sparse::Calc() {
 	if (PR.empty() || _row.empty() || _column.empty() || _value.empty()) {
-#ifdef __GNUC__
 		err_msg("%s:empty data", __FUNCTION__);
-#endif
 		return -1;
 	}
 	int iteration_count = 0;
 	double jump_dead_page_value = _alpha * 1.0 / _max_id;//dead_page修正值
 	pr_type last_pr(PR.begin(), PR.end());
 	auto ptrPR=&PR;
+	
+	//test,检查 不做优化的G矩阵
+	//g_type G(_max_id, vector<double>(_max_id, (1.0-_alpha)*1.0/_max_id));
+	//for (int pos : _dead_page) {
+	//	for (int j = 0; j < _max_id; ++j) {
+	//		G[j][pos] += _alpha * 1.0 / _max_id;
+	//	}
+	//}
+	//for (int i = 0; i < _row.size(); ++i) {
+	//	G[_row[i]][_column[i]] += _value[i];
+	//}
+	
 	while (iteration_count < _max_iteration_depth) {
 		//零元素矩阵相乘的默认值
 		double default_jump_value = (1.0 - _alpha) / _max_id * std::accumulate(PR.begin(), PR.end(), 0.0);

@@ -50,6 +50,7 @@ public:
 	typedef vector<pair<int,double>> out_type;
 
 	virtual int OpenData(const char *filepath);
+	virtual int OpenData(FILE *ifs);
 	virtual int Init();
 	virtual int Calc();
 	virtual int Show(std::ostream_iterator<double> &out);

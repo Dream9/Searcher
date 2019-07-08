@@ -33,7 +33,32 @@ int Pagerank::OpenData(const char *filepath) {
 	return 0;
 
 }
+
+//brief:读取网页连接信息,重载
+int Pagerank::OpenData(FILE *ifs) {
+	ENSURE(ifs);
+	int urlid;
+	int out_urlid;
+	while (2 == fscanf(ifs, "%d %d", &urlid, &out_urlid)) {
+		auto iter = m_mapOutdegree.find(urlid);
+		if (iter != m_mapOutdegree.end()) {
+			iter->second.emplace_back(out_urlid);
+		}
+		else {
+			m_mapOutdegree.insert({ urlid,{out_urlid} });
+		}
+		_max_id = MAX_N(_max_id, (MAX_N(urlid, out_urlid)));
+	}
+	if (!feof(ifs)) {
+		//err_msg("%s:unexpected file end", __FUNCTION__);
+		return -1;
+	}
+	return 0;
+
+}
+
 #undef ENSURE
+#undef MAX_N
 
 //brief:初始化PR值，G矩阵
 //becare:要求url id从1开始
@@ -62,9 +87,12 @@ int Pagerank::Init() {
 			//double weight_with_alpha=weight*alpha;
 			double weight_with_alpha = _alpha * 1.0 / iter->second.size();
 			for (int outid : iter->second) {
+				if(--outid==i){//不允许自环
+					continue;
+				}
 				//...搞反了，列向量才是出链的权值
-				//G[i][outid-1] = weight_with_alpha;
-				G[outid-1][i] = weight_with_alpha;
+				//G[i][outid] += weight_with_alpha;
+				G[outid][i] += weight_with_alpha;
 			}
 			++iter;
 		}
@@ -116,7 +144,7 @@ int Pagerank::Calc() {
 
 //brief:输出PR结果
 int Pagerank::Show(std::ostream_iterator<double> &out) {
-	std::copy(PR.begin(), PR.end(), out):
+	std::copy(PR.begin(), PR.end(), out);
 	//pr_type().swap(PR);
 	return 0;
 }
