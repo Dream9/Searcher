@@ -7,10 +7,10 @@ DEBUG=-ggdb -O0
 FLAG=-std=c++11 -Wall -I$(UTILSDIR)
 
 %.o:%.cpp
-	$(XX) $(FLAG) -c $< -o $@
+	$(XX) $(FLAG) -c $< -o $@ $(DEBUG)
 
 %..o:%.c
-	$(XX) $(FLAG) -c $< -o $@
+	$(XX) $(FLAG) -c $< -o $@ $(DEBUG)
 
 SOURCES=$(wildcard *.c *.cpp)
 OBJS=$(patsubst %.c,%.o,$(patsubst %.cpp,%.o,$(SOURCES)))
