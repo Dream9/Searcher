@@ -151,7 +151,7 @@ void StrFun::TranslateUrl(char *ptrUrl, int *left_space) {
 	}
 	*ptrCur = '\0';
 	use_space = ptrCur - ptrStr;
-	if (*left_space) {
+	if (left_space) {
 		*left_space = len - use_space;
 	}
 	memmove(leader, ptrStr, use_space + 1);
