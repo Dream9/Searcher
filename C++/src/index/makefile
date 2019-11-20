@@ -28,6 +28,7 @@ test:
 
 target:$(OBJS) $(SUBDIR)
 	@echo $(OBJS)
+	ar crs libindex.a $(OBJS) && mv *.a *.o ../lib
 	@echo "Done!"
 
 $(SUBDIR): ECHO
