@@ -6,6 +6,8 @@
  ************************************************************************/
 #include"query.h"
 
+#include<string.h>
+
 
 //brief:获取参数信息
 //return: 错误信息
@@ -87,6 +89,34 @@ int Query::GetInput() {
 	}
 	return ret;
 	
+}
+
+//brief:外部直接传入word部分(是指从?往后的部分,例如： word=99&... )
+int Query::SetQueryParameter(const string& word){
+	char parameter[kMAX_QUERY_LENGTH + 1];
+	size_t len = static_cast<size_t>(kMAX_QUERY_LENGTH) < word.size() ? static_cast<size_t>(kMAX_QUERY_LENGTH) : word.size();
+	size_t equal_pos = word.find(kHTML_PARAMETER_DELIM_CHAR);
+	if(string::npos == equal_pos)
+		return kERROR_QUERY_PARAMETER;
+
+	memcpy(parameter, word.c_str() + equal_pos + 1, len);
+
+	StrFun::TranslateUrl(parameter,nullptr);//length返回未使用的长度
+
+	//要求第一个参数为word=XXX&...
+	//...会被省略，xxx为查询词
+	char *pos_end=strchr(parameter, kHTML_PARAMETER_DELIM_CHAR);
+	if(pos_end){
+		m_query_string.assign(parameter,pos_end);
+	}
+	else{
+		m_query_string.assign(parameter);
+	}
+	if (m_query_string.empty()) {
+		return kERROR_QUERY_PARAMETER;
+	}
+
+	return 0;
 }
 
 //brief：按照指定分隔符delimiter切割字符串target，结果保存在vec中

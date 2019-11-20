@@ -15,8 +15,15 @@ extern const char kSEPARATE_CHAR_INVERSE_FILE=' ';
 
 /*response.cpp需要的*/
 extern const size_t kNUMBER_OF_ANSWER_EACH_PAGE=4;
-const char *kDEPLOYMENT_ADDRESS="127.0.0.1:8083";
-const char *kIMG_ADDRESS="//localhost:8083/dream_long.jpg";
+//apache test:
+//const char *kDEPLOYMENT_ADDRESS="127.0.0.1:8083";
+//const char *kIMG_ADDRESS="//localhost:8083/dream_long.jpg";
+//const char *kCGI_QUERY_PATH="/cgi-bin/search.cgi";
+//const char *kCGI_LEFT_PAGE_PATH="/cgi-bin/todo.cgi";
+
+//imnet test:
+const char *kDEPLOYMENT_ADDRESS="127.0.0.1:5996";
+const char *kIMG_ADDRESS="//localhost:5996/dream_long.jpg";
 const char *kCGI_QUERY_PATH="/cgi-bin/search.cgi";
 const char *kCGI_LEFT_PAGE_PATH="/cgi-bin/todo.cgi";
 

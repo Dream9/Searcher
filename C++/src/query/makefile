@@ -23,6 +23,7 @@ test:
 
 target:$(OBJECTS)
 	@echo $(OBJECTS)
+	ar crs libquery.a $(OBJECTS) && mv *.a *.o ../lib
 	@echo Done
 
 .PYHOY:clean

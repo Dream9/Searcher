@@ -112,7 +112,9 @@ public:
 public:
 	int EnvironmentInit(unordered_map<int,int> &, const char *, unordered_map<string,string> &, const char *);
 	//int QueryStringInit(Dictinary &);
-    int GetInput();
+    int GetInput();//Apache cgi实现方式是直接从环境变量中获取
+	int SetQueryParameter(const string& word);//外部直接传入word
+
 	int GetDictinary(Dictinary &, const char *);
 	int HandleQueryString(Dictinary &);
 	int GetAnswer(int, unordered_map<string,string> &, score_container &,vector<string> &, vector<float> &);
