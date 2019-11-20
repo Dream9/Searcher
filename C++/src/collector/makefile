@@ -22,10 +22,13 @@ test:
 
 target:$(OBJECT)
 	@echo $(OBJECT)
+	ar crs libcrawer.a $(OBJECT) && mv *.a *.o ../lib	
 	@echo "Done!" 
 
 crawl.o:crawl.cpp
 	$(CC) $(CFLAG) -c $^
+	#$(SPECIAL) -c $^
+	
 	
 
 
